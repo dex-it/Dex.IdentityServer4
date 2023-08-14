@@ -1,9 +1,9 @@
 <Project>
 
   <PropertyGroup>
-    <FrameworkVersion>6.0.20</FrameworkVersion>
+    <FrameworkVersion>5.0.17</FrameworkVersion>
     <ExtensionsVersion>6.0.1</ExtensionsVersion>
-    <EntityFrameworkVersion>6.0.20</EntityFrameworkVersion>
+    <EntityFrameworkVersion>5.0.17</EntityFrameworkVersion>
     
     <IdentityServerVersion>0.0.0-alpha.*</IdentityServerVersion>
   </PropertyGroup>
@@ -22,7 +22,7 @@
     <PackageReference Update="xunit.runner.visualstudio" Version="2.4.1" PrivateAssets="All" />
 
     <!--our stuff -->
-    <PackageReference Update="IdentityModel" Version="6.1.0" />
+    <PackageReference Update="IdentityModel" Version="6.0.0" />
 
     <PackageReference Update="Dex.IdentityServer4" Version="$(IdentityServerVersion)" />
     <PackageReference Update="Dex.IdentityServer4.AspNetIdentity" Version="$(IdentityServerVersion)" />
