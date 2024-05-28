@@ -11,7 +11,9 @@ using System;
 using System.Net.Http;
 using IdentityServer4;
 using IdentityServer4.Configuration;
+using IdentityServer4.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -20,6 +22,32 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public static class IdentityServerBuilderExtensionsAdditional
     {
+        /// <summary>
+        /// Add RotatingValidationKeysStore, rotate validation keys feature
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IIdentityServerBuilder AddValidationKeysRotator<T>(this IIdentityServerBuilder builder)
+            where T : class, IExtensionGrantValidator
+        {
+            var services = builder.Services;
+            
+            services.AddSingleton<IValidateOptions<KeyRotationOptions>, KeyRotationOptionsValidator>();
+            
+            services.AddSingleton<ISigningCredentialStore, RotatingValidationKeysStore>();
+            services.AddSingleton<IValidationKeysStore, RotatingValidationKeysStore>(GetRotator);
+            services.AddHostedService(GetRotator);
+            
+            return builder;
+            
+            static RotatingValidationKeysStore GetRotator(IServiceProvider provider)
+            {
+                return (RotatingValidationKeysStore) provider.GetRequiredService<ISigningCredentialStore>();
+            }
+        }
+        
+        
         /// <summary>
         /// Adds the extension grant validator.
         /// </summary>
@@ -30,10 +58,10 @@ namespace Microsoft.Extensions.DependencyInjection
             where T : class, IExtensionGrantValidator
         {
             builder.Services.AddTransient<IExtensionGrantValidator, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a redirect URI validator.
         /// </summary>
@@ -44,10 +72,10 @@ namespace Microsoft.Extensions.DependencyInjection
             where T : class, IRedirectUriValidator
         {
             builder.Services.AddTransient<IRedirectUriValidator, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a an "AppAuth" (OAuth 2.0 for Native Apps) compliant redirect URI validator (does strict validation but also allows http://127.0.0.1 with random port)
         /// </summary>
@@ -57,7 +85,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             return builder.AddRedirectUriValidator<StrictRedirectUriValidatorAppAuth>();
         }
-
+        
         /// <summary>
         /// Adds the resource owner validator.
         /// </summary>
@@ -65,13 +93,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder.</param>
         /// <returns></returns>
         public static IIdentityServerBuilder AddResourceOwnerValidator<T>(this IIdentityServerBuilder builder)
-           where T : class, IResourceOwnerPasswordValidator
+            where T : class, IResourceOwnerPasswordValidator
         {
             builder.Services.AddTransient<IResourceOwnerPasswordValidator, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds the profile service.
         /// </summary>
@@ -79,10 +107,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder.</param>
         /// <returns></returns>
         public static IIdentityServerBuilder AddProfileService<T>(this IIdentityServerBuilder builder)
-           where T : class, IProfileService
+            where T : class, IProfileService
         {
             builder.Services.AddTransient<IProfileService, T>();
-
+            
             return builder;
         }
         
@@ -96,10 +124,10 @@ namespace Microsoft.Extensions.DependencyInjection
             where T : class, IResourceValidator
         {
             builder.Services.AddTransient<IResourceValidator, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a scope parser.
         /// </summary>
@@ -110,10 +138,10 @@ namespace Microsoft.Extensions.DependencyInjection
             where T : class, IScopeParser
         {
             builder.Services.AddTransient<IScopeParser, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a client store.
         /// </summary>
@@ -121,14 +149,14 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder.</param>
         /// <returns></returns>
         public static IIdentityServerBuilder AddClientStore<T>(this IIdentityServerBuilder builder)
-           where T : class, IClientStore
+            where T : class, IClientStore
         {
             builder.Services.TryAddTransient(typeof(T));
             builder.Services.AddTransient<IClientStore, ValidatingClientStore<T>>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a resource store.
         /// </summary>
@@ -136,13 +164,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder.</param>
         /// <returns></returns>
         public static IIdentityServerBuilder AddResourceStore<T>(this IIdentityServerBuilder builder)
-           where T : class, IResourceStore
+            where T : class, IResourceStore
         {
             builder.Services.AddTransient<IResourceStore, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a device flow store.
         /// </summary>
@@ -152,10 +180,10 @@ namespace Microsoft.Extensions.DependencyInjection
             where T : class, IDeviceFlowStore
         {
             builder.Services.AddTransient<IDeviceFlowStore, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a persisted grant store.
         /// </summary>
@@ -166,10 +194,10 @@ namespace Microsoft.Extensions.DependencyInjection
             where T : class, IPersistedGrantStore
         {
             builder.Services.AddTransient<IPersistedGrantStore, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a CORS policy service.
         /// </summary>
@@ -182,7 +210,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<ICorsPolicyService, T>();
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a CORS policy service cache.
         /// </summary>
@@ -196,7 +224,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<ICorsPolicyService, CachingCorsPolicyService<T>>();
             return builder;
         }
-
+        
         /// <summary>
         /// Adds the secret parser.
         /// </summary>
@@ -207,10 +235,10 @@ namespace Microsoft.Extensions.DependencyInjection
             where T : class, ISecretParser
         {
             builder.Services.AddTransient<ISecretParser, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds the secret validator.
         /// </summary>
@@ -221,10 +249,10 @@ namespace Microsoft.Extensions.DependencyInjection
             where T : class, ISecretValidator
         {
             builder.Services.AddTransient<ISecretValidator, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds the client store cache.
         /// </summary>
@@ -237,10 +265,10 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.TryAddTransient(typeof(T));
             builder.Services.AddTransient<ValidatingClientStore<T>>();
             builder.Services.AddTransient<IClientStore, CachingClientStore<ValidatingClientStore<T>>>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds the client store cache.
         /// </summary>
@@ -254,21 +282,22 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<IResourceStore, CachingResourceStore<T>>();
             return builder;
         }
-
+        
         /// <summary>
         /// Adds the authorize interaction response generator.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="builder">The builder.</param>
         /// <returns></returns>
-        public static IIdentityServerBuilder AddAuthorizeInteractionResponseGenerator<T>(this IIdentityServerBuilder builder)
+        public static IIdentityServerBuilder AddAuthorizeInteractionResponseGenerator<T>(
+            this IIdentityServerBuilder builder)
             where T : class, IAuthorizeInteractionResponseGenerator
         {
             builder.Services.AddTransient<IAuthorizeInteractionResponseGenerator, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds the custom authorize request validator.
         /// </summary>
@@ -276,13 +305,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder.</param>
         /// <returns></returns>
         public static IIdentityServerBuilder AddCustomAuthorizeRequestValidator<T>(this IIdentityServerBuilder builder)
-           where T : class, ICustomAuthorizeRequestValidator
+            where T : class, ICustomAuthorizeRequestValidator
         {
             builder.Services.AddTransient<ICustomAuthorizeRequestValidator, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds the custom authorize request validator.
         /// </summary>
@@ -290,13 +319,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder.</param>
         /// <returns></returns>
         public static IIdentityServerBuilder AddCustomTokenRequestValidator<T>(this IIdentityServerBuilder builder)
-           where T : class, ICustomTokenRequestValidator
+            where T : class, ICustomTokenRequestValidator
         {
             builder.Services.AddTransient<ICustomTokenRequestValidator, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds support for client authentication using JWT bearer assertions.
         /// </summary>
@@ -307,10 +336,10 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.TryAddTransient<IReplayCache, DefaultReplayCache>();
             builder.AddSecretParser<JwtBearerClientAssertionSecretParser>();
             builder.AddSecretValidator<PrivateKeyJwtSecretValidator>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a client configuration validator.
         /// </summary>
@@ -321,10 +350,10 @@ namespace Microsoft.Extensions.DependencyInjection
             where T : class, IClientConfigurationValidator
         {
             builder.Services.AddTransient<IClientConfigurationValidator, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds the X509 secret validators for mutual TLS.
         /// </summary>
@@ -335,10 +364,10 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.AddSecretParser<MutualTlsSecretParser>();
             builder.AddSecretValidator<X509ThumbprintSecretValidator>();
             builder.AddSecretValidator<X509NameSecretValidator>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a custom back-channel logout service.
         /// </summary>
@@ -349,10 +378,10 @@ namespace Microsoft.Extensions.DependencyInjection
             where T : class, IBackChannelLogoutService
         {
             builder.Services.AddTransient<IBackChannelLogoutService, T>();
-
+            
             return builder;
         }
-
+        
         // todo: check with later previews of ASP.NET Core if this is still required
         /// <summary>
         /// Adds configuration for the HttpClient used for back-channel logout notifications.
@@ -360,11 +389,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder.</param>
         /// <param name="configureClient">The configruation callback.</param>
         /// <returns></returns>
-        public static IHttpClientBuilder AddBackChannelLogoutHttpClient(this IIdentityServerBuilder builder, Action<HttpClient> configureClient = null)
+        public static IHttpClientBuilder AddBackChannelLogoutHttpClient(this IIdentityServerBuilder builder,
+            Action<HttpClient> configureClient = null)
         {
             const string name = IdentityServerConstants.HttpClients.BackChannelLogoutHttpClient;
             IHttpClientBuilder httpBuilder;
-
+            
             if (configureClient != null)
             {
                 httpBuilder = builder.Services.AddHttpClient(name, configureClient);
@@ -372,11 +402,13 @@ namespace Microsoft.Extensions.DependencyInjection
             else
             {
                 httpBuilder = builder.Services.AddHttpClient(name)
-                    .ConfigureHttpClient(client => {
-                        client.Timeout = TimeSpan.FromSeconds(IdentityServerConstants.HttpClients.DefaultTimeoutSeconds);
+                    .ConfigureHttpClient(client =>
+                    {
+                        client.Timeout =
+                            TimeSpan.FromSeconds(IdentityServerConstants.HttpClients.DefaultTimeoutSeconds);
                     });
             }
-
+            
             builder.Services.AddTransient<IBackChannelLogoutHttpClient>(s =>
             {
                 var httpClientFactory = s.GetRequiredService<IHttpClientFactory>();
@@ -385,11 +417,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 
                 return new DefaultBackChannelLogoutHttpClient(httpClient, loggerFactory);
             });
-
+            
             return httpBuilder;
         }
-
-
+        
+        
         // todo: check with later previews of ASP.NET Core if this is still required
         /// <summary>
         /// Adds configuration for the HttpClient used for JWT request_uri requests.
@@ -397,11 +429,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder.</param>
         /// <param name="configureClient">The configruation callback.</param>
         /// <returns></returns>
-        public static IHttpClientBuilder AddJwtRequestUriHttpClient(this IIdentityServerBuilder builder, Action<HttpClient> configureClient = null)
+        public static IHttpClientBuilder AddJwtRequestUriHttpClient(this IIdentityServerBuilder builder,
+            Action<HttpClient> configureClient = null)
         {
             const string name = IdentityServerConstants.HttpClients.JwtRequestUriHttpClient;
             IHttpClientBuilder httpBuilder;
-
+            
             if (configureClient != null)
             {
                 httpBuilder = builder.Services.AddHttpClient(name, configureClient);
@@ -409,8 +442,10 @@ namespace Microsoft.Extensions.DependencyInjection
             else
             {
                 httpBuilder = builder.Services.AddHttpClient(name)
-                    .ConfigureHttpClient(client => {
-                        client.Timeout = TimeSpan.FromSeconds(IdentityServerConstants.HttpClients.DefaultTimeoutSeconds);
+                    .ConfigureHttpClient(client =>
+                    {
+                        client.Timeout =
+                            TimeSpan.FromSeconds(IdentityServerConstants.HttpClients.DefaultTimeoutSeconds);
                     });
             }
             
@@ -420,27 +455,28 @@ namespace Microsoft.Extensions.DependencyInjection
                 var httpClient = httpClientFactory.CreateClient(name);
                 var loggerFactory = s.GetRequiredService<ILoggerFactory>();
                 var options = s.GetRequiredService<IdentityServerOptions>();
-
+                
                 return new DefaultJwtRequestUriHttpClient(httpClient, options, loggerFactory);
             });
-
+            
             return httpBuilder;
         }
-
+        
         /// <summary>
         /// Adds a custom authorization request parameter store.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="builder">The builder.</param>
         /// <returns></returns>
-        public static IIdentityServerBuilder AddAuthorizationParametersMessageStore<T>(this IIdentityServerBuilder builder)
+        public static IIdentityServerBuilder AddAuthorizationParametersMessageStore<T>(
+            this IIdentityServerBuilder builder)
             where T : class, IAuthorizationParametersMessageStore
         {
             builder.Services.AddTransient<IAuthorizationParametersMessageStore, T>();
-
+            
             return builder;
         }
-
+        
         /// <summary>
         /// Adds a custom user session.
         /// </summary>
@@ -453,7 +489,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // This is added as scoped due to the note regarding the AuthenticateAsync
             // method in the IdentityServer4.Services.DefaultUserSession implementation.
             builder.Services.AddScoped<IUserSession, T>();
-
+            
             return builder;
         }
     }
