@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace IdentityServer4.Stores
 {
     /// <summary>
-    /// The RotatingValidationKeysStore class is an implementation of the IValidationKeysStore interface and the IHostedService interface for managing and rotating validation keys in IdentityServer4.
+    /// The RotatingKeysStore class is an implementation of the ISigningCredentialStore and IValidationKeysStore interface and the IHostedService interface for managing and rotating validation keys in IdentityServer4.
     /// This class ensures that validation keys are periodically rotated and expired keys are removed based on configurable options. 
     /// </summary>
     public class RotatingKeysStore : ISigningCredentialStore, IValidationKeysStore,
