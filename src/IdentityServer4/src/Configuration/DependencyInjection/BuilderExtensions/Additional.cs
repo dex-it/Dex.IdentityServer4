@@ -28,22 +28,22 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static IIdentityServerBuilder AddValidationKeysRotator<T>(this IIdentityServerBuilder builder)
+        public static IIdentityServerBuilder AddKeysRotator<T>(this IIdentityServerBuilder builder)
             where T : class, IExtensionGrantValidator
         {
             var services = builder.Services;
             
             services.AddSingleton<IValidateOptions<KeyRotationOptions>, KeyRotationOptionsValidator>();
             
-            services.AddSingleton<ISigningCredentialStore, RotatingValidationKeysStore>();
-            services.AddSingleton<IValidationKeysStore, RotatingValidationKeysStore>(GetRotator);
+            services.AddSingleton<ISigningCredentialStore, RotatingKeysStore>();
+            services.AddSingleton<IValidationKeysStore, RotatingKeysStore>(GetRotator);
             services.AddHostedService(GetRotator);
             
             return builder;
             
-            static RotatingValidationKeysStore GetRotator(IServiceProvider provider)
+            static RotatingKeysStore GetRotator(IServiceProvider provider)
             {
-                return (RotatingValidationKeysStore) provider.GetRequiredService<ISigningCredentialStore>();
+                return (RotatingKeysStore) provider.GetRequiredService<ISigningCredentialStore>();
             }
         }
         

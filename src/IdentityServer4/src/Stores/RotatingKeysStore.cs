@@ -15,7 +15,7 @@ namespace IdentityServer4.Stores
     /// The RotatingValidationKeysStore class is an implementation of the IValidationKeysStore interface and the IHostedService interface for managing and rotating validation keys in IdentityServer4.
     /// This class ensures that validation keys are periodically rotated and expired keys are removed based on configurable options. 
     /// </summary>
-    public class RotatingValidationKeysStore : ISigningCredentialStore, IValidationKeysStore,
+    public class RotatingKeysStore : ISigningCredentialStore, IValidationKeysStore,
         IHostedService, IDisposable
     {
         private readonly List<KeyInfo> _keys;
@@ -23,7 +23,7 @@ namespace IdentityServer4.Stores
         private readonly object _lock = new();
         private Timer _timer;
         
-        internal RotatingValidationKeysStore(IOptions<KeyRotationOptions> options)
+        internal RotatingKeysStore(IOptions<KeyRotationOptions> options)
         {
             _options = options.Value;
             _keys = new List<KeyInfo>();
