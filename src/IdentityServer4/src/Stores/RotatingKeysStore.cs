@@ -116,7 +116,7 @@ namespace IdentityServer4.Stores
             _timer?.Dispose();
         }
         
-        private class KeyInfo
+        private record KeyInfo
         {
             public SecurityKeyInfo SecurityKeyInfo { get; init; }
             public DateTime ExpiryDate { get; init; }
