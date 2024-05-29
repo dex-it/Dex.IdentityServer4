@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var services = builder.Services;
             
             services.AddSingleton<IValidateOptions<KeyRotationOptions>, KeyRotationOptionsValidator>();
-            
+            services.AddSingleton<IKeyStore, InMemoryKeyStore>();
             services.AddSingleton<ISigningCredentialStore, RotatingKeysStore>();
             services.AddSingleton<IValidationKeysStore, RotatingKeysStore>(GetRotator);
             services.AddHostedService(GetRotator);

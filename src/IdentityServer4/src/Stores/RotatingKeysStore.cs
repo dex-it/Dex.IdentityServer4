@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,71 +14,36 @@ namespace IdentityServer4.Stores
     /// The RotatingKeysStore class is an implementation of the ISigningCredentialStore and IValidationKeysStore interface and the IHostedService interface for managing and rotating validation keys in IdentityServer4.
     /// This class ensures that validation keys are periodically rotated and expired keys are removed based on configurable options. 
     /// </summary>
-    public class RotatingKeysStore : ISigningCredentialStore, IValidationKeysStore,
-        IHostedService, IDisposable
+    public class RotatingKeysStore : ISigningCredentialStore, IValidationKeysStore, IHostedService, IDisposable
     {
-        private readonly List<KeyInfo> _keys;
+        private readonly IKeyStore _keyStore;
         private readonly KeyRotationOptions _options;
-        private readonly object _lock = new();
         private Timer _timer;
         
-        internal RotatingKeysStore(IOptions<KeyRotationOptions> options)
+        public RotatingKeysStore(IKeyStore keyStore, IOptions<KeyRotationOptions> options)
         {
+            if (options == null) throw new ArgumentNullException(nameof(options));
+            _keyStore = keyStore ?? throw new ArgumentNullException(nameof(keyStore));
             _options = options.Value;
-            _keys = new List<KeyInfo>();
         }
         
         /// <inheritdoc />
         public Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync()
         {
-            lock (_lock)
-            {
-                RemoveExpiredKeys();
-                return Task.FromResult(_keys.Select(k => k.SecurityKeyInfo));
-            }
+            return _keyStore.GetValidationKeysAsync();
         }
         
         /// <inheritdoc />
         public Task<SigningCredentials> GetSigningCredentialsAsync()
         {
-            lock (_lock)
-            {
-                RemoveExpiredKeys();
-                var currentKey = _keys.LastOrDefault();
-                if (currentKey != null)
-                {
-                    return Task.FromResult(new SigningCredentials(currentKey.SecurityKeyInfo.Key,
-                        currentKey.SecurityKeyInfo.SigningAlgorithm));
-                }
-                
-                return Task.FromResult<SigningCredentials>(null);
-            }
+            return _keyStore.GetSigningCredentialsAsync();
         }
         
-        private void RemoveExpiredKeys()
-        {
-            var now = DateTime.UtcNow;
-            _keys.RemoveAll(k => k.ExpiryDate < now);
-        }
-        
-        private void RotateKeys(object state)
-        {
-            lock (_lock)
-            {
-                AddNewKey();
-                RemoveExpiredKeys();
-            }
-        }
-        
-        private void AddNewKey()
+        private async void RotateKeys(object state)
         {
             var keyInfo = CreateKeyInfo();
-            
-            _keys.Add(new KeyInfo
-            {
-                SecurityKeyInfo = keyInfo,
-                ExpiryDate = DateTime.UtcNow.Add(_options.KeyLifetime)
-            });
+            await _keyStore.AddKeyAsync(keyInfo, DateTime.UtcNow.Add(_options.KeyLifetime));
+            await _keyStore.RemoveExpiredKeysAsync();
         }
         
         /// <summary>
@@ -114,12 +78,6 @@ namespace IdentityServer4.Stores
         public void Dispose()
         {
             _timer?.Dispose();
-        }
-        
-        private record KeyInfo
-        {
-            public SecurityKeyInfo SecurityKeyInfo { get; init; }
-            public DateTime ExpiryDate { get; init; }
         }
     }
 }
