@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,69 +13,148 @@ namespace IdentityServer4.Stores
 {
     /// <summary>
     /// The RotatingKeysStore class is an implementation of the ISigningCredentialStore and IValidationKeysStore interface and the IHostedService interface for managing and rotating validation keys in IdentityServer4.
-    /// This class ensures that validation keys are periodically rotated and expired keys are removed based on configurable options. 
+    /// This class ensures that validation keys are periodically rotated and expired keys are removed based on configurable options.
     /// </summary>
     public class RotatingKeysStore : ISigningCredentialStore, IValidationKeysStore, IHostedService, IDisposable
     {
-        private readonly IKeyStore _keyStore;
+        private readonly IPersistedKeyStore _persistedKeyStore;
         private readonly KeyRotationOptions _options;
+        private readonly List<SecurityKeyInfo> _keys = new();
+        private readonly object _lock = new();
         private Timer _timer;
+        private bool _keysLoaded;
         
-        public RotatingKeysStore(IKeyStore keyStore, IOptions<KeyRotationOptions> options)
+        public RotatingKeysStore(IOptions<KeyRotationOptions> options, IPersistedKeyStore persistedKeyStore = null)
         {
-            if (options == null) throw new ArgumentNullException(nameof(options));
-            _keyStore = keyStore ?? throw new ArgumentNullException(nameof(keyStore));
             _options = options.Value;
+            _persistedKeyStore = persistedKeyStore;
         }
         
         /// <inheritdoc />
-        public Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync()
+        public async Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync()
         {
-            return _keyStore.GetValidationKeysAsync();
+            await EnsureKeysLoadedAsync();
+            lock (_lock)
+            {
+                RemoveExpiredKeys();
+                return _keys.ToList();
+            }
         }
         
         /// <inheritdoc />
-        public Task<SigningCredentials> GetSigningCredentialsAsync()
+        public async Task<SigningCredentials> GetSigningCredentialsAsync()
         {
-            return _keyStore.GetSigningCredentialsAsync();
+            await EnsureKeysLoadedAsync();
+            lock (_lock)
+            {
+                RemoveExpiredKeys();
+                var currentKey = _keys.LastOrDefault();
+                if (currentKey != null)
+                {
+                    return new SigningCredentials(currentKey.Key, currentKey.SigningAlgorithm);
+                }
+                
+                return null;
+            }
+        }
+        
+        private async Task EnsureKeysLoadedAsync()
+        {
+            if (!_keysLoaded && _persistedKeyStore != null)
+            {
+                var loadedKeys = await _persistedKeyStore.LoadKeyMaterialsAsync();
+                lock (_lock)
+                {
+                    _keys.AddRange(loadedKeys.Select(CreateSecurityKeyInfo));
+                    _keysLoaded = true;
+                }
+            }
+        }
+        
+        private void RemoveExpiredKeys()
+        {
+            _keys.RemoveAll(k => k.ExpiryDate < DateTime.UtcNow);
         }
         
         private async void RotateKeys(object state)
         {
-            var keyInfo = CreateKeyInfo();
-            await _keyStore.AddKeyAsync(keyInfo, DateTime.UtcNow.Add(_options.KeyLifetime));
-            await _keyStore.RemoveExpiredKeysAsync();
+            await AddNewKeyAsync();
+            if (_persistedKeyStore != null)
+            {
+                await _persistedKeyStore.RemoveExpiredKeyMaterialAsync();
+            }
+        }
+        
+        private async Task AddNewKeyAsync()
+        {
+            var keyInfo = CreateSecurityKeyInfo();
+            lock (_lock)
+            {
+                _keys.Add(keyInfo);
+            }
+            
+            if (_persistedKeyStore != null)
+            {
+                var keyMaterial = new KeyMaterial
+                {
+                    KeyId = keyInfo.Key.KeyId,
+                    Algorithm = keyInfo.SigningAlgorithm,
+                    KeyData = ((RsaSecurityKey) keyInfo.Key).Rsa.ExportParameters(false).Modulus,
+                    ExpiryDate = keyInfo.ExpiryDate
+                };
+                await _persistedKeyStore.AddKeyMaterialAsync(keyMaterial);
+            }
         }
         
         /// <summary>
-        /// Override your creation keys logic.
-        /// Default: RSA key be creating
+        /// Creates a new SecurityKeyInfo. If keyMaterial is provided, the SecurityKeyInfo will be created from the provided key material.
         /// </summary>
-        /// <returns></returns>
-        protected virtual SecurityKeyInfo CreateKeyInfo()
+        /// <param name="keyMaterial">Optional key material to create the security key from.</param>
+        /// <returns>A new SecurityKeyInfo instance.</returns>
+        protected virtual SecurityKeyInfo CreateSecurityKeyInfo(KeyMaterial keyMaterial = null)
         {
+            
+            if (keyMaterial != null)
+            {
+                var rsa = RSA.Create();
+                rsa.ImportParameters(new RSAParameters
+                {
+                    Modulus = keyMaterial.KeyData,
+                    Exponent = new byte[] { 1, 0, 1 } // Commonly used exponent
+                });
+                
+                return new SecurityKeyInfo 
+                {
+                    Key = new RsaSecurityKey(rsa) { KeyId = keyMaterial.KeyId },
+                    SigningAlgorithm = keyMaterial.Algorithm,
+                    ExpiryDate = keyMaterial.ExpiryDate
+                };
+            }
+            
+            var securityKey = new RsaSecurityKey(RSA.Create()) { KeyId = DateTime.UtcNow.Ticks.ToString() };
             return new SecurityKeyInfo
             {
-                Key = new RsaSecurityKey(RSA.Create()) { KeyId = DateTime.UtcNow.Ticks.ToString() },
-                SigningAlgorithm = SecurityAlgorithms.RsaSha256
+                Key = securityKey,
+                SigningAlgorithm = SecurityAlgorithms.RsaSha256,
+                ExpiryDate = DateTime.UtcNow.Add(_options.KeyLifetime)
             };
         }
         
-        Task IHostedService.StartAsync(CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             _timer = new Timer(RotateKeys, null, TimeSpan.Zero, _options.KeyRotationInterval);
             return Task.CompletedTask;
         }
         
-        Task IHostedService.StopAsync(CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public Task StopAsync(CancellationToken cancellationToken)
         {
             _timer?.Change(Timeout.Infinite, 0);
             return Task.CompletedTask;
         }
         
-        /// <summary>
-        /// Clear all resources
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             _timer?.Dispose();

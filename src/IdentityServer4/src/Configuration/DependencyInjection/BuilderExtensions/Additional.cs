@@ -26,15 +26,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Add RotatingValidationKeysStore, rotate validation keys feature
         /// </summary>
         /// <param name="builder"></param>
-        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static IIdentityServerBuilder AddKeysRotator<T>(this IIdentityServerBuilder builder)
-            where T : class, IExtensionGrantValidator
+        public static IIdentityServerBuilder AddKeysRotator(this IIdentityServerBuilder builder)
         {
             var services = builder.Services;
             
             services.AddSingleton<IValidateOptions<KeyRotationOptions>, KeyRotationOptionsValidator>();
-            services.AddSingleton<IKeyStore, InMemoryKeyStore>();
             services.AddSingleton<ISigningCredentialStore, RotatingKeysStore>();
             services.AddSingleton<IValidationKeysStore, RotatingKeysStore>(GetRotator);
             services.AddHostedService(GetRotator);

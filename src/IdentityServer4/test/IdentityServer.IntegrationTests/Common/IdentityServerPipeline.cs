@@ -133,6 +133,7 @@ namespace IdentityServer.IntegrationTests.Common
                         RaiseSuccessEvents = true
                     };
                 })
+                .AddKeysRotator()
                 .AddInMemoryClients(Clients)
                 .AddInMemoryIdentityResources(IdentityScopes)
                 .AddInMemoryApiResources(ApiResources)
