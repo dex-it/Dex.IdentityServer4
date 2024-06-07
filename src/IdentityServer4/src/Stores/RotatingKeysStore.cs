@@ -23,13 +23,18 @@ namespace IdentityServer4.Stores
         private readonly object _lock = new();
         private Timer _timer;
         private bool _keysLoaded;
-        
+
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="persistedKeyStore"></param>
         public RotatingKeysStore(IOptions<KeyRotationOptions> options, IPersistedKeyStore persistedKeyStore = null)
         {
             _options = options.Value;
             _persistedKeyStore = persistedKeyStore;
         }
-        
+
         /// <inheritdoc />
         public async Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync()
         {
@@ -40,7 +45,7 @@ namespace IdentityServer4.Stores
                 return _keys.ToList();
             }
         }
-        
+
         /// <inheritdoc />
         public async Task<SigningCredentials> GetSigningCredentialsAsync()
         {
@@ -53,29 +58,43 @@ namespace IdentityServer4.Stores
                 {
                     return new SigningCredentials(currentKey.Key, currentKey.SigningAlgorithm);
                 }
-                
+
                 return null;
             }
         }
-        
+
         private async Task EnsureKeysLoadedAsync()
         {
-            if (!_keysLoaded && _persistedKeyStore != null)
+            if (!_keysLoaded)
             {
-                var loadedKeys = await _persistedKeyStore.LoadKeyMaterialsAsync();
-                lock (_lock)
+                if (_persistedKeyStore != null)
                 {
-                    _keys.AddRange(loadedKeys.Select(CreateSecurityKeyInfo));
-                    _keysLoaded = true;
+                    // load from DB
+                    var loadedKeys = await _persistedKeyStore.LoadKeyMaterialsAsync();
+                    lock (_lock)
+                    {
+                        _keys.AddRange(loadedKeys.Select(CreateSecurityKeyInfo));
+                        RemoveExpiredKeys();
+                        if (_keys.Count == 0)
+                        {
+                            RotateKeys(null);
+                        }
+                    }
                 }
+                else
+                {
+                    RotateKeys(null);
+                }
+
+                _keysLoaded = true;
             }
         }
-        
+
         private void RemoveExpiredKeys()
         {
             _keys.RemoveAll(k => k.ExpiryDate < DateTime.UtcNow);
         }
-        
+
         private async void RotateKeys(object state)
         {
             await AddNewKeyAsync();
@@ -84,7 +103,7 @@ namespace IdentityServer4.Stores
                 await _persistedKeyStore.RemoveExpiredKeyMaterialAsync();
             }
         }
-        
+
         private async Task AddNewKeyAsync()
         {
             var keyInfo = CreateSecurityKeyInfo();
@@ -92,7 +111,7 @@ namespace IdentityServer4.Stores
             {
                 _keys.Add(keyInfo);
             }
-            
+
             if (_persistedKeyStore != null)
             {
                 var keyMaterial = new KeyMaterial
@@ -105,7 +124,7 @@ namespace IdentityServer4.Stores
                 await _persistedKeyStore.AddKeyMaterialAsync(keyMaterial);
             }
         }
-        
+
         /// <summary>
         /// Creates a new SecurityKeyInfo. If keyMaterial is provided, the SecurityKeyInfo will be created from the provided key material.
         /// </summary>
@@ -113,7 +132,6 @@ namespace IdentityServer4.Stores
         /// <returns>A new SecurityKeyInfo instance.</returns>
         protected virtual SecurityKeyInfo CreateSecurityKeyInfo(KeyMaterial keyMaterial = null)
         {
-            
             if (keyMaterial != null)
             {
                 var rsa = RSA.Create();
@@ -122,15 +140,15 @@ namespace IdentityServer4.Stores
                     Modulus = keyMaterial.KeyData,
                     Exponent = new byte[] { 1, 0, 1 } // Commonly used exponent
                 });
-                
-                return new SecurityKeyInfo 
+
+                return new SecurityKeyInfo
                 {
                     Key = new RsaSecurityKey(rsa) { KeyId = keyMaterial.KeyId },
                     SigningAlgorithm = keyMaterial.Algorithm,
                     ExpiryDate = keyMaterial.ExpiryDate
                 };
             }
-            
+
             var securityKey = new RsaSecurityKey(RSA.Create()) { KeyId = DateTime.UtcNow.Ticks.ToString() };
             return new SecurityKeyInfo
             {
@@ -139,21 +157,21 @@ namespace IdentityServer4.Stores
                 ExpiryDate = DateTime.UtcNow.Add(_options.KeyLifetime)
             };
         }
-        
+
         /// <inheritdoc />
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _timer = new Timer(RotateKeys, null, TimeSpan.Zero, _options.KeyRotationInterval);
             return Task.CompletedTask;
         }
-        
+
         /// <inheritdoc />
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _timer?.Change(Timeout.Infinite, 0);
             return Task.CompletedTask;
         }
-        
+
         /// <inheritdoc />
         public void Dispose()
         {

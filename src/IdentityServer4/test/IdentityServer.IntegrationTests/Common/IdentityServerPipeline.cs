@@ -74,6 +74,11 @@ namespace IdentityServer.IntegrationTests.Common
 
         public Func<HttpContext, Task<bool>> OnFederatedSignout;
 
+        /// <summary>
+        /// Add to DI RotatorKeys system
+        /// </summary>
+        public bool EnableRotator { get; init; } = true;
+
         public void Initialize(string basePath = null, bool enableLogging = false)
         {
             var builder = new WebHostBuilder();
@@ -121,7 +126,7 @@ namespace IdentityServer.IntegrationTests.Common
                 return handler;
             });
 
-            services.AddIdentityServer(options =>
+            var b = services.AddIdentityServer(options =>
                 {
                     Options = options;
 
@@ -133,13 +138,16 @@ namespace IdentityServer.IntegrationTests.Common
                         RaiseSuccessEvents = true
                     };
                 })
-                .AddKeysRotator()
                 .AddInMemoryClients(Clients)
                 .AddInMemoryIdentityResources(IdentityScopes)
                 .AddInMemoryApiResources(ApiResources)
                 .AddInMemoryApiScopes(ApiScopes)
-                .AddTestUsers(Users)
-                .AddDeveloperSigningCredential(persistKey: false);
+                .AddTestUsers(Users);
+
+            if (EnableRotator)
+                b.AddKeysRotator();
+            else
+                b.AddDeveloperSigningCredential(persistKey: false);
 
             services.AddHttpClient(IdentityServerConstants.HttpClients.BackChannelLogoutHttpClient)
                 .AddHttpMessageHandler(() => BackChannelMessageHandler);
@@ -184,7 +192,8 @@ namespace IdentityServer.IntegrationTests.Common
         private async Task ReadLoginRequest(HttpContext ctx)
         {
             var interaction = ctx.RequestServices.GetRequiredService<IIdentityServerInteractionService>();
-            LoginRequest = await interaction.GetAuthorizationContextAsync(ctx.Request.Query["returnUrl"].FirstOrDefault());
+            LoginRequest =
+                await interaction.GetAuthorizationContextAsync(ctx.Request.Query["returnUrl"].FirstOrDefault());
         }
 
         private async Task IssueLoginCookie(HttpContext ctx)
