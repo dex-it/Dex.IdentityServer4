@@ -23,6 +23,7 @@ namespace IdentityServer4.Stores
         private readonly object _lock = new();
         private Timer _timer;
         private bool _keysLoaded;
+        private static readonly Predicate<SecurityKeyInfo> ExpiredKeyPredicate = k => k.ExpiryDate < DateTime.UtcNow;
 
         /// <summary>
         /// ctor
@@ -41,7 +42,7 @@ namespace IdentityServer4.Stores
             await EnsureKeysLoadedAsync();
             lock (_lock)
             {
-                RemoveExpiredKeys();
+                _keys.RemoveAll(ExpiredKeyPredicate);
                 return _keys.ToList();
             }
         }
@@ -52,7 +53,7 @@ namespace IdentityServer4.Stores
             await EnsureKeysLoadedAsync();
             lock (_lock)
             {
-                RemoveExpiredKeys();
+                _keys.RemoveAll(ExpiredKeyPredicate);
                 var currentKey = _keys.LastOrDefault();
                 if (currentKey != null)
                 {
@@ -74,7 +75,7 @@ namespace IdentityServer4.Stores
                     lock (_lock)
                     {
                         _keys.AddRange(loadedKeys.Select(CreateSecurityKeyInfo));
-                        RemoveExpiredKeys();
+                        _keys.RemoveAll(ExpiredKeyPredicate);
                         if (_keys.Count == 0)
                         {
                             RotateKeys(null);
@@ -88,11 +89,6 @@ namespace IdentityServer4.Stores
 
                 _keysLoaded = true;
             }
-        }
-
-        private void RemoveExpiredKeys()
-        {
-            _keys.RemoveAll(k => k.ExpiryDate < DateTime.UtcNow);
         }
 
         private async void RotateKeys(object state)
