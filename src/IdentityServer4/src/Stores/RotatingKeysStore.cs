@@ -43,7 +43,7 @@ namespace IdentityServer4.Stores
             lock (_lock)
             {
                 _keys.RemoveAll(ExpiredKeyPredicate);
-                return _keys.ToList();
+                return _keys.ToArray();
             }
         }
 
@@ -60,7 +60,7 @@ namespace IdentityServer4.Stores
                     return new SigningCredentials(currentKey.Key, currentKey.SigningAlgorithm);
                 }
 
-                return null;
+                throw new InvalidOperationException("signing key is empty");
             }
         }
 
