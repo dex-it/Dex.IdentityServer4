@@ -29,7 +29,8 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
             IdentityServerPipeline pipeline = new IdentityServerPipeline();
             pipeline.Initialize("/ROOT");
 
-            var result = await pipeline.BackChannelClient.GetAsync("HTTPS://SERVER/ROOT/.WELL-KNOWN/OPENID-CONFIGURATION");
+            var result =
+                await pipeline.BackChannelClient.GetAsync("HTTPS://SERVER/ROOT/.WELL-KNOWN/OPENID-CONFIGURATION");
 
             var json = await result.Content.ReadAsStringAsync();
             var data = JObject.Parse(json);
@@ -47,7 +48,8 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
 
             pipeline.Options.LowerCaseIssuerUri = false;
 
-            var result = await pipeline.BackChannelClient.GetAsync("HTTPS://SERVER/ROOT/.WELL-KNOWN/OPENID-CONFIGURATION");
+            var result =
+                await pipeline.BackChannelClient.GetAsync("HTTPS://SERVER/ROOT/.WELL-KNOWN/OPENID-CONFIGURATION");
 
             var json = await result.Content.ReadAsStringAsync();
             var data = JObject.Parse(json);
@@ -68,7 +70,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
             var key = CryptoHelper.CreateECDsaSecurityKey(JsonWebKeyECTypes.P256);
             var expectedAlgorithm = SecurityAlgorithms.EcdsaSha256;
 
-            IdentityServerPipeline pipeline = new IdentityServerPipeline();
+            IdentityServerPipeline pipeline = new IdentityServerPipeline() { EnableRotator = false };
             pipeline.OnPostConfigureServices += services =>
             {
                 // add key to standard RSA key
@@ -77,7 +79,8 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
             };
             pipeline.Initialize("/ROOT");
 
-            var result = await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration");
+            var result =
+                await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration");
 
             var json = await result.Content.ReadAsStringAsync();
             var data = JObject.Parse(json);
@@ -96,7 +99,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
             var ecdsaKey = CryptoHelper.CreateECDsaSecurityKey(JsonWebKeyECTypes.P256);
             var parameters = ecdsaKey.ECDsa.ExportParameters(true);
 
-            IdentityServerPipeline pipeline = new IdentityServerPipeline();
+            IdentityServerPipeline pipeline = new IdentityServerPipeline() { EnableRotator = false };
 
             var jsonWebKeyFromECDsa = new JsonWebKey()
             {
@@ -119,7 +122,8 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
 
             pipeline.Initialize("/ROOT");
 
-            var result = await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration/jwks");
+            var result =
+                await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration/jwks");
 
             var json = await result.Content.ReadAsStringAsync();
             var data = JObject.Parse(json);
@@ -134,7 +138,6 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
             crv.Should().NotBeNull();
 
             crv.Value<string>().Should().Be(JsonWebKeyECTypes.P256);
-
         }
 
         [Fact]
@@ -144,7 +147,8 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
             IdentityServerPipeline pipeline = new IdentityServerPipeline();
             pipeline.Initialize("/ROOT");
 
-            var result = await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration/jwks");
+            var result =
+                await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration/jwks");
 
             var json = await result.Content.ReadAsStringAsync();
             var data = JObject.Parse(json);
@@ -170,7 +174,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
         {
             var key = CryptoHelper.CreateECDsaSecurityKey(crv);
 
-            IdentityServerPipeline pipeline = new IdentityServerPipeline();
+            IdentityServerPipeline pipeline = new IdentityServerPipeline() { EnableRotator = false };
             pipeline.OnPostConfigureServices += services =>
             {
                 services.AddIdentityServerBuilder()
@@ -178,7 +182,8 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
             };
             pipeline.Initialize("/ROOT");
 
-            var result = await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration/jwks");
+            var result =
+                await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration/jwks");
 
             var json = await result.Content.ReadAsStringAsync();
             var jwks = new JsonWebKeySet(json);
@@ -195,7 +200,7 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
             var ecdsaKey = CryptoHelper.CreateECDsaSecurityKey();
             var rsaKey = CryptoHelper.CreateRsaSecurityKey();
 
-            IdentityServerPipeline pipeline = new IdentityServerPipeline();
+            IdentityServerPipeline pipeline = new IdentityServerPipeline() { EnableRotator = false };
             pipeline.OnPostConfigureServices += services =>
             {
                 services.AddIdentityServerBuilder()
@@ -204,7 +209,8 @@ namespace IdentityServer.IntegrationTests.Endpoints.Discovery
             };
             pipeline.Initialize("/ROOT");
 
-            var result = await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration/jwks");
+            var result =
+                await pipeline.BackChannelClient.GetAsync("https://server/root/.well-known/openid-configuration/jwks");
 
             var json = await result.Content.ReadAsStringAsync();
             var jwks = new JsonWebKeySet(json);

@@ -284,6 +284,15 @@ namespace IdentityServer4.EntityFramework.Extensions
                 property.Property(x => x.Key).HasMaxLength(250).IsRequired();
                 property.Property(x => x.Value).HasMaxLength(2000).IsRequired();
             });
+            
+            modelBuilder.Entity<KeyEntity>(property =>
+            {
+                property.ToTable(storeOptions.KeyMaterial).HasKey(x => x.Id);
+                property.Property(x => x.KeyId).HasMaxLength(250).IsRequired();
+                property.Property(x => x.Algorithm).HasMaxLength(60).IsRequired();
+                property.Property(x => x.KeyData).HasMaxLength(2000).IsRequired();
+                property.Property(x => x.ExpiryDate).IsRequired();
+            });
 
 
         }

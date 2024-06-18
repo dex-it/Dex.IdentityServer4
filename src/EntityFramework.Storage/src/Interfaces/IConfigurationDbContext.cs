@@ -53,5 +53,10 @@ namespace IdentityServer4.EntityFramework.Interfaces
         /// The identity resources.
         /// </value>
         DbSet<ApiScope> ApiScopes { get; set; }
+        
+        /// <summary>
+        /// Keys materail table
+        /// </summary>
+        DbSet<KeyEntity> Keys { get; set; }
     }
 }
