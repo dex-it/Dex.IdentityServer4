@@ -6,6 +6,8 @@ using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Interfaces;
 using System;
 using IdentityServer4.EntityFramework.Options;
+using IdentityServer4.EntityFramework.Stores;
+using IdentityServer4.Stores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,8 +38,8 @@ namespace IdentityServer4.EntityFramework.Storage
         /// <param name="storeOptionsAction">The store options action.</param>
         /// <returns></returns>
         public static IServiceCollection AddConfigurationDbContext<TContext>(this IServiceCollection services,
-        Action<ConfigurationStoreOptions> storeOptionsAction = null)
-        where TContext : DbContext, IConfigurationDbContext
+            Action<ConfigurationStoreOptions> storeOptionsAction = null)
+            where TContext : DbContext, IConfigurationDbContext
         {
             var options = new ConfigurationStoreOptions();
             services.AddSingleton(options);
@@ -49,11 +51,9 @@ namespace IdentityServer4.EntityFramework.Storage
             }
             else
             {
-                services.AddDbContext<TContext>(dbCtxBuilder =>
-                {
-                    options.ConfigureDbContext?.Invoke(dbCtxBuilder);
-                });
+                services.AddDbContext<TContext>(dbCtxBuilder => { options.ConfigureDbContext?.Invoke(dbCtxBuilder); });
             }
+
             services.AddScoped<IConfigurationDbContext, TContext>();
 
             return services;
@@ -111,9 +111,20 @@ namespace IdentityServer4.EntityFramework.Storage
         /// <param name="services"></param>
         /// <returns></returns>
         public static IServiceCollection AddOperationalStoreNotification<T>(this IServiceCollection services)
-           where T : class, IOperationalStoreNotification
+            where T : class, IOperationalStoreNotification
         {
             services.AddTransient<IOperationalStoreNotification, T>();
+            return services;
+        }
+
+        /// <summary>
+        /// Add implementation of the IPersistedKeyStore to DI
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection AddPersistedKeyStore(this IServiceCollection services)
+        {
+            services.AddScoped<IPersistedKeyStore, PersistedKeyStore>();
             return services;
         }
     }
