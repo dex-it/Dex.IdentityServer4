@@ -28,7 +28,7 @@ jobs:
       - name: Create Nugets
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 6.0.*
+          dotnet-version: 6.0.31
       - run: |
             wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
             sudo dpkg -i packages-microsoft-prod.deb
