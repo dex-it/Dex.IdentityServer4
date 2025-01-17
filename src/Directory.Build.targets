@@ -44,7 +44,7 @@
     
     <!--https://github.com/IdentityServer/IdentityServer4/issues/4285-->
     <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="5.7.0" />
-    <PackageReference Update="System.Security.Principal.Windows" Version="4.7.0" />
+    <PackageReference Update="System.Security.Principal.Windows" Version="5.0.0" />
     <PackageReference Update="AutoMapper" Version="13.0.1" />
     
     <!--microsoft asp.net core -->
