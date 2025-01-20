@@ -38,7 +38,7 @@ jobs:
             ./build.sh         # Run the script
 
         # Publish the NuGet package as an artifact, so they can be used in the following jobs
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
             name: nuget
             if-no-files-found: error
@@ -51,7 +51,7 @@ jobs:
       needs: [ build_nuget ]
       steps:
           # Download the NuGet package created in the previous job
-          -   uses: actions/download-artifact@v3
+          -   uses: actions/download-artifact@v4
               with:
                   name: nuget
                   path: ./nuget
