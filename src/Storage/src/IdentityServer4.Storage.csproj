@@ -22,6 +22,8 @@
         <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
 
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <AssemblyName>Dex.IdentityServer4.Storage</AssemblyName>
     </PropertyGroup>
 
     <PropertyGroup>
