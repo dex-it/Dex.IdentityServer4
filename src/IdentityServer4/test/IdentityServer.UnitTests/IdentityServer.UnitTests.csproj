@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dex.IdentityServer4.Storage" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
 
     <PackageReference Include="xunit" />
@@ -34,5 +33,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\IdentityServer4.csproj" />
+    <ProjectReference Include="..\..\..\Storage\src\IdentityServer4.Storage.csproj" />
   </ItemGroup>
 </Project>

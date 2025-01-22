@@ -40,13 +40,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dex.IdentityServer4.Storage" />
     <PackageReference Include="IdentityModel" />
-
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
-
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Storage\src\IdentityServer4.Storage.csproj" />
+  </ItemGroup>
+
 </Project>

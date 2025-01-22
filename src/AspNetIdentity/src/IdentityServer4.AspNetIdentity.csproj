@@ -39,9 +39,11 @@
   </ItemGroup>
     
   <ItemGroup>
-    <PackageReference Include="Dex.IdentityServer4" />
-    
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\IdentityServer4\src\IdentityServer4.csproj" />
   </ItemGroup>
 
 </Project>

@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dex.IdentityServer4.Storage" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
@@ -39,6 +38,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\IdentityServer4.csproj" />
+    <ProjectReference Include="..\..\..\Storage\src\IdentityServer4.Storage.csproj" />
   </ItemGroup>
 
 </Project>

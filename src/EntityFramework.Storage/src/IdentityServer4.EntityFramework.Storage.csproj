@@ -33,10 +33,13 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dex.IdentityServer4.Storage" />
     <PackageReference Include="AutoMapper" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Storage\src\IdentityServer4.Storage.csproj" />
   </ItemGroup>
 
 </Project>
