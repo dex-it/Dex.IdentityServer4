@@ -12,7 +12,7 @@ public static class JsonExtensions
 
         foreach (var property in element.EnumerateObject())
         {
-            object value = property.Value.ValueKind switch
+            var value = property.Value.ValueKind switch
             {
                 JsonValueKind.Object => ToDictionary(property.Value),
                 JsonValueKind.Array => ParseJsonArray(property.Value.EnumerateArray()),
@@ -32,7 +32,7 @@ public static class JsonExtensions
         return dictionary;
     }
 
-    static List<object> ParseJsonArray(JsonElement.ArrayEnumerator arrayEnumerator)
+    private static List<object> ParseJsonArray(JsonElement.ArrayEnumerator arrayEnumerator)
     {
         var list = new List<object>();
 
@@ -50,7 +50,7 @@ public static class JsonExtensions
                     list.Add(item.GetString());
                     break;
                 case JsonValueKind.Number:
-                    list.Add(item.TryGetInt32(out int intValue) ? intValue : (object) item.GetDecimal());
+                    list.Add(item.TryGetInt32(out var intValue) ? intValue : (object) item.GetDecimal());
                     break;
                 case JsonValueKind.True:
                     list.Add(true);

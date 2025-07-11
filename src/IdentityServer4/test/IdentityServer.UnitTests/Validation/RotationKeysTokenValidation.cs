@@ -33,7 +33,7 @@ public class RotationKeysTokenValidation
             Key = TestCert.LoadSigningCredentials().Key,
             SigningAlgorithm = "RS256"
         };
-        var validator = Factory.CreateTokenValidator(keys: new[] { CreateKey(), CreateKey(), validKey });
+        var validator = Factory.CreateTokenValidator(keys: [CreateKey(), CreateKey(), validKey]);
         var result = await validator.ValidateIdentityTokenAsync(jwt, "roclient");
         
         result.IsError.Should().BeFalse();
@@ -47,7 +47,7 @@ public class RotationKeysTokenValidation
         var token = TokenFactory.CreateIdentityToken("roclient", "valid");
         var jwt = await creator.CreateTokenAsync(token);
         
-        var validator = Factory.CreateTokenValidator(keys: new[] { CreateKey(), CreateKey() });
+        var validator = Factory.CreateTokenValidator(keys: [CreateKey(), CreateKey()]);
         var result = await validator.ValidateIdentityTokenAsync(jwt, "roclient");
         
         result.IsError.Should().BeTrue();

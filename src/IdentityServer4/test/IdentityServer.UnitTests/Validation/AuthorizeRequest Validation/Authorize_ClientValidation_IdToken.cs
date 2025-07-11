@@ -11,29 +11,29 @@ using IdentityServer.UnitTests.Validation.Setup;
 using IdentityServer4.Configuration;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation
+namespace IdentityServer.UnitTests.Validation.AuthorizeRequest_Validation;
+
+public class Authorize_ClientValidation_IdToken
 {
+    private IdentityServerOptions _options = TestIdentityServerOptions.Create();
 
-    public class Authorize_ClientValidation_IdToken
+    [Fact]
+    [Trait("Category", "AuthorizeRequest Client Validation - IdToken")]
+    public async Task Mixed_IdToken_Request()
     {
-        private IdentityServerOptions _options = TestIdentityServerOptions.Create();
-
-        [Fact]
-        [Trait("Category", "AuthorizeRequest Client Validation - IdToken")]
-        public async Task Mixed_IdToken_Request()
+        var parameters = new NameValueCollection
         {
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.AuthorizeRequest.ClientId, "implicitclient");
-            parameters.Add(OidcConstants.AuthorizeRequest.Scope, "openid resource");
-            parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, "oob://implicit/cb");
-            parameters.Add(OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.IdToken);
-            parameters.Add(OidcConstants.AuthorizeRequest.Nonce, "abc");
+            { OidcConstants.AuthorizeRequest.ClientId, "implicitclient" },
+            { OidcConstants.AuthorizeRequest.Scope, "openid resource" },
+            {OidcConstants.AuthorizeRequest.RedirectUri, "oob://implicit/cb"},
+            {OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.IdToken},
+            {OidcConstants.AuthorizeRequest.Nonce, "abc"}
+        };
 
-            var validator = Factory.CreateAuthorizeRequestValidator();
-            var result = await validator.ValidateAsync(parameters);
+        var validator = Factory.CreateAuthorizeRequestValidator();
+        var result = await validator.ValidateAsync(parameters);
             
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidScope);
-        }
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.AuthorizeErrors.InvalidScope);
     }
 }

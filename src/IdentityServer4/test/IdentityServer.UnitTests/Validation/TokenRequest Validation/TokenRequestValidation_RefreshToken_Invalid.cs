@@ -16,179 +16,190 @@ using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Xunit;
 
-namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation
+namespace IdentityServer.UnitTests.Validation.TokenRequest_Validation;
+
+public class TokenRequestValidation_RefreshToken_Invalid
 {
-    public class TokenRequestValidation_RefreshToken_Invalid
+    private const string Category = "TokenRequest Validation - RefreshToken - Invalid";
+
+    private IClientStore _clients = Factory.CreateClientStore();
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Non_existing_RefreshToken()
     {
-        private const string Category = "TokenRequest Validation - RefreshToken - Invalid";
+        var client = await _clients.FindEnabledClientByIdAsync("roclient");
 
-        private IClientStore _clients = Factory.CreateClientStore();
+        var validator = Factory.CreateTokenRequestValidator();
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Non_existing_RefreshToken()
+        var parameters = new NameValueCollection
         {
-            var client = await _clients.FindEnabledClientByIdAsync("roclient");
+            { OidcConstants.TokenRequest.GrantType, "refresh_token" },
+            { OidcConstants.TokenRequest.RefreshToken, "nonexistent" }
+        };
 
-            var validator = Factory.CreateTokenRequestValidator();
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, "refresh_token");
-            parameters.Add(OidcConstants.TokenRequest.RefreshToken, "nonexistent");
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
+    }
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task RefreshTokenTooLong()
+    {
+        var client = await _clients.FindEnabledClientByIdAsync("roclient");
+        var options = new IdentityServerOptions();
 
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
-        }
+        var validator = Factory.CreateTokenRequestValidator();
+        var longRefreshToken = "x".Repeat(options.InputLengthRestrictions.RefreshToken + 1);
 
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task RefreshTokenTooLong()
+        var parameters = new NameValueCollection
         {
-            var client = await _clients.FindEnabledClientByIdAsync("roclient");
-            var options = new IdentityServerOptions();
+            { OidcConstants.TokenRequest.GrantType, "refresh_token" },
+            { OidcConstants.TokenRequest.RefreshToken, longRefreshToken }
+        };
 
-            var validator = Factory.CreateTokenRequestValidator();
-            var longRefreshToken = "x".Repeat(options.InputLengthRestrictions.RefreshToken + 1);
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, "refresh_token");
-            parameters.Add(OidcConstants.TokenRequest.RefreshToken, longRefreshToken);
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
+    }
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Expired_RefreshToken()
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Expired_RefreshToken()
+    {
+        var refreshToken = new RefreshToken
         {
-            var refreshToken = new RefreshToken
+            AccessToken = new Token("access_token") { ClientId = "roclient" },
+            Lifetime = 10,
+            CreationTime = DateTime.UtcNow.AddSeconds(-15)
+        };
+
+        var grants = Factory.CreateRefreshTokenStore();
+        var handle = await grants.StoreRefreshTokenAsync(refreshToken);
+
+        var client = await _clients.FindEnabledClientByIdAsync("roclient");
+
+        var validator = Factory.CreateTokenRequestValidator(
+            refreshTokenStore: grants);
+
+        var parameters = new NameValueCollection
+        {
+            { OidcConstants.TokenRequest.GrantType, "refresh_token" },
+            { OidcConstants.TokenRequest.RefreshToken, handle }
+        };
+
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Wrong_Client_Binding_RefreshToken_Request()
+    {
+        var refreshToken = new RefreshToken
+        {
+            AccessToken = new Token("access_token")
             {
-                AccessToken = new Token("access_token") { ClientId = "roclient" },
-                Lifetime = 10,
-                CreationTime = DateTime.UtcNow.AddSeconds(-15)
-            };
-
-            var grants = Factory.CreateRefreshTokenStore();
-            var handle = await grants.StoreRefreshTokenAsync(refreshToken);
-
-            var client = await _clients.FindEnabledClientByIdAsync("roclient");
-
-            var validator = Factory.CreateTokenRequestValidator(
-                refreshTokenStore: grants);
-
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, "refresh_token");
-            parameters.Add(OidcConstants.TokenRequest.RefreshToken, handle);
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Wrong_Client_Binding_RefreshToken_Request()
-        {
-            var refreshToken = new RefreshToken
-            {
-                AccessToken = new Token("access_token")
-                {
-                    ClientId = "otherclient",
-                    Lifetime = 600,
-                    CreationTime = DateTime.UtcNow
-                }
-            };
-
-            var grants = Factory.CreateRefreshTokenStore();
-            var handle = await grants.StoreRefreshTokenAsync(refreshToken);
-
-            var client = await _clients.FindEnabledClientByIdAsync("roclient");
-
-            var validator = Factory.CreateTokenRequestValidator(
-                refreshTokenStore: grants);
-
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, "refresh_token");
-            parameters.Add(OidcConstants.TokenRequest.RefreshToken, handle);
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task Client_has_no_OfflineAccess_Scope_anymore_at_RefreshToken_Request()
-        {
-            var refreshToken = new RefreshToken
-            {
-                AccessToken = new Token("access_token")
-                {
-                    ClientId = "roclient_restricted"
-                },
+                ClientId = "otherclient",
                 Lifetime = 600,
                 CreationTime = DateTime.UtcNow
-            };
+            }
+        };
 
-            var grants = Factory.CreateRefreshTokenStore();
-            var handle = await grants.StoreRefreshTokenAsync(refreshToken);
+        var grants = Factory.CreateRefreshTokenStore();
+        var handle = await grants.StoreRefreshTokenAsync(refreshToken);
 
-            var client = await _clients.FindEnabledClientByIdAsync("roclient_restricted");
+        var client = await _clients.FindEnabledClientByIdAsync("roclient");
 
-            var validator = Factory.CreateTokenRequestValidator(
-                refreshTokenStore: grants);
+        var validator = Factory.CreateTokenRequestValidator(
+            refreshTokenStore: grants);
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, "refresh_token");
-            parameters.Add(OidcConstants.TokenRequest.RefreshToken, handle);
-
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
-
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
-        }
-
-        [Fact]
-        [Trait("Category", Category)]
-        public async Task RefreshToken_Request_with_disabled_User()
+        var parameters = new NameValueCollection
         {
-            var subjectClaim = new Claim(JwtClaimTypes.Subject, "foo");
+            { OidcConstants.TokenRequest.GrantType, "refresh_token" },
+            { OidcConstants.TokenRequest.RefreshToken, handle }
+        };
 
-            var refreshToken = new RefreshToken
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task Client_has_no_OfflineAccess_Scope_anymore_at_RefreshToken_Request()
+    {
+        var refreshToken = new RefreshToken
+        {
+            AccessToken = new Token("access_token")
             {
-                AccessToken = new Token("access_token")
-                {
-                    Claims = new List<Claim> { subjectClaim },
-                    ClientId = "roclient"
-                },
-                Lifetime = 600,
-                CreationTime = DateTime.UtcNow
-            };
+                ClientId = "roclient_restricted"
+            },
+            Lifetime = 600,
+            CreationTime = DateTime.UtcNow
+        };
 
-            var grants = Factory.CreateRefreshTokenStore();
-            var handle = await grants.StoreRefreshTokenAsync(refreshToken);
+        var grants = Factory.CreateRefreshTokenStore();
+        var handle = await grants.StoreRefreshTokenAsync(refreshToken);
 
-            var client = await _clients.FindEnabledClientByIdAsync("roclient");
+        var client = await _clients.FindEnabledClientByIdAsync("roclient_restricted");
 
-            var validator = Factory.CreateTokenRequestValidator(
-                refreshTokenStore: grants,
-                profile: new TestProfileService(shouldBeActive: false));
+        var validator = Factory.CreateTokenRequestValidator(
+            refreshTokenStore: grants);
 
-            var parameters = new NameValueCollection();
-            parameters.Add(OidcConstants.TokenRequest.GrantType, "refresh_token");
-            parameters.Add(OidcConstants.TokenRequest.RefreshToken, handle);
+        var parameters = new NameValueCollection
+        {
+            { OidcConstants.TokenRequest.GrantType, "refresh_token" },
+            { OidcConstants.TokenRequest.RefreshToken, handle }
+        };
 
-            var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
 
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
-        }
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
+    }
+
+    [Fact]
+    [Trait("Category", Category)]
+    public async Task RefreshToken_Request_with_disabled_User()
+    {
+        var subjectClaim = new Claim(JwtClaimTypes.Subject, "foo");
+
+        var refreshToken = new RefreshToken
+        {
+            AccessToken = new Token("access_token")
+            {
+                Claims = new List<Claim> { subjectClaim },
+                ClientId = "roclient"
+            },
+            Lifetime = 600,
+            CreationTime = DateTime.UtcNow
+        };
+
+        var grants = Factory.CreateRefreshTokenStore();
+        var handle = await grants.StoreRefreshTokenAsync(refreshToken);
+
+        var client = await _clients.FindEnabledClientByIdAsync("roclient");
+
+        var validator = Factory.CreateTokenRequestValidator(
+            refreshTokenStore: grants,
+            profile: new TestProfileService(false));
+
+        var parameters = new NameValueCollection
+        {
+            { OidcConstants.TokenRequest.GrantType, "refresh_token" },
+            { OidcConstants.TokenRequest.RefreshToken, handle }
+        };
+
+        var result = await validator.ValidateRequestAsync(parameters, client.ToValidationResult());
+
+        result.IsError.Should().BeTrue();
+        result.Error.Should().Be(OidcConstants.TokenErrors.InvalidGrant);
     }
 }

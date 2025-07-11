@@ -1,13 +1,12 @@
-﻿namespace IdentityServer4.Validation
+﻿namespace IdentityServer4.Validation;
+
+/// <summary>
+/// Context for custom authorize request validation.
+/// </summary>
+public class CustomAuthorizeRequestValidationContext
 {
     /// <summary>
-    /// Context for custom authorize request validation.
+    /// The result of custom validation. 
     /// </summary>
-    public class CustomAuthorizeRequestValidationContext
-    {
-        /// <summary>
-        /// The result of custom validation. 
-        /// </summary>
-        public AuthorizeRequestValidationResult Result { get; set; }
-    }
+    public AuthorizeRequestValidationResult Result { get; set; }
 }

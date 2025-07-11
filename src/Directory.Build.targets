@@ -1,64 +1,49 @@
 <Project>
 
-  <PropertyGroup>
-    <FrameworkVersion>6.0.20</FrameworkVersion>
-    <ExtensionsVersion>6.0.1</ExtensionsVersion>
-    <EntityFrameworkVersion>7.0.20</EntityFrameworkVersion>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!--build related-->
-    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="All" />
-    <PackageReference Update="SimpleExec" Version="6.2.0" />
-    <PackageReference Update="Bullseye" Version="3.3.0" />
-    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-
-    <!--tests -->
-    <PackageReference Update="FluentAssertions" Version="5.10.2" />
-    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.2.0" />
-    <PackageReference Update="xunit" Version="2.4.1" />
-    <PackageReference Update="xunit.runner.visualstudio" Version="2.4.1" PrivateAssets="All" />
-
-    <!--our stuff -->
-    <PackageReference Update="IdentityModel" Version="6.1.0" />
-
-    <!--microsoft extensions -->
-    <PackageReference Update="Microsoft.Extensions.Caching.Memory" Version="$(ExtensionsVersion)" />
-    <PackageReference Update="Microsoft.Extensions.Http" Version="$(ExtensionsVersion)" />
-    <PackageReference Update="Microsoft.Extensions.Http.Polly" Version="$(ExtensionsVersion)" />
-    <PackageReference Update="Microsoft.Extensions.Logging" Version="$(ExtensionsVersion)" />
-    <PackageReference Update="Microsoft.Extensions.Logging.Console" Version="$(ExtensionsVersion)" />
-    <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(ExtensionsVersion)" />
-    
-    <!--misc -->
-    <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Update="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="5.6.0" />
-    
-    <!--https://github.com/IdentityServer/IdentityServer4/issues/4285-->
-    <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="5.7.0" />
-    <PackageReference Update="System.Security.Principal.Windows" Version="5.0.0" />
-    <PackageReference Update="AutoMapper" Version="13.0.1" />
-    
-    <!--microsoft asp.net core -->
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.32" />
-    <PackageReference Update="Microsoft.AspNetCore.TestHost" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Identity" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="$(FrameworkVersion)" />
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.Certificate" Version="$(FrameworkVersion)"/>
-    
-    <!--microsoft entity framework -->
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="$(EntityFrameworkVersion)" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EntityFrameworkVersion)" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.InMemory" Version="$(EntityFrameworkVersion)" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EntityFrameworkVersion)" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Design" Version="$(EntityFrameworkVersion)" PrivateAssets="All" />
-
-  </ItemGroup>
-
-  <Target Name="SetAssemblyVersion" AfterTargets="MinVer">
     <PropertyGroup>
-      <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch).0</AssemblyVersion>
+        <FrameworkVersion>8.0.18</FrameworkVersion>
     </PropertyGroup>
-  </Target>
+
+    <ItemGroup>
+        <!--build related-->
+        <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="All"/>
+        <PackageReference Include="SimpleExec" Version="12.0.0"/>
+        <PackageReference Include="Bullseye" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+
+        <!--our stuff -->
+        <PackageReference Include="IdentityModel" Version="6.1.0"/>
+
+        <!--microsoft extensions -->
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="$(FrameworkVersion)"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0"/>
+
+        <!--https://github.com/IdentityServer/IdentityServer4/issues/4285-->
+        <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0"/>
+        <PackageReference Include="AutoMapper" Version="14.0.0"/>
+
+        <!--microsoft asp.net core -->
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="$(FrameworkVersion)"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="$(FrameworkVersion)"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="$(FrameworkVersion)"/>
+
+        <!--microsoft entity framework -->
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="$(FrameworkVersion)"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(FrameworkVersion)"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(FrameworkVersion)"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(FrameworkVersion)"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="$(FrameworkVersion)" PrivateAssets="All"/>
+
+    </ItemGroup>
+
+    <Target Name="SetAssemblyVersion" AfterTargets="MinVer">
+        <PropertyGroup>
+            <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch).0</AssemblyVersion>
+        </PropertyGroup>
+    </Target>
 </Project>
