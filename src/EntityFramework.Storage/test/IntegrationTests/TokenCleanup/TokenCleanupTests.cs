@@ -16,13 +16,12 @@ using Xunit;
 
 namespace IdentityServer4.EntityFramework.IntegrationTests.TokenCleanup
 {
-    public class TokenCleanupTests : IntegrationTest<TokenCleanupTests, PersistedGrantDbContext, OperationalStoreOptions>
+    public class
+        TokenCleanupTests : IntegrationTest<TokenCleanupTests, PersistedGrantDbContext, OperationalStoreOptions>
     {
-
-
         public TokenCleanupTests(DatabaseProviderFixture<PersistedGrantDbContext> fixture) : base(fixture)
         {
-            foreach (var options in TestDatabaseProviders.SelectMany(x => x.Select(y => (DbContextOptions<PersistedGrantDbContext>)y)).ToList())
+            foreach (var options in TestDatabaseProviders.Select(x => x.Data).ToList())
             {
                 using (var context = new PersistedGrantDbContext(options, StoreOptions))
                 {
@@ -32,7 +31,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.TokenCleanup
         }
 
         [Theory, MemberData(nameof(TestDatabaseProviders))]
-        public async Task RemoveExpiredGrantsAsync_WhenExpiredGrantsExist_ExpectExpiredGrantsRemoved(DbContextOptions<PersistedGrantDbContext> options)
+        public async Task RemoveExpiredGrantsAsync_WhenExpiredGrantsExist_ExpectExpiredGrantsRemoved(
+            DbContextOptions<PersistedGrantDbContext> options)
         {
             var expiredGrant = new PersistedGrant
             {
@@ -59,7 +59,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.TokenCleanup
         }
 
         [Theory, MemberData(nameof(TestDatabaseProviders))]
-        public async Task RemoveExpiredGrantsAsync_WhenValidGrantsExist_ExpectValidGrantsInDb(DbContextOptions<PersistedGrantDbContext> options)
+        public async Task RemoveExpiredGrantsAsync_WhenValidGrantsExist_ExpectValidGrantsInDb(
+            DbContextOptions<PersistedGrantDbContext> options)
         {
             var validGrant = new PersistedGrant
             {
@@ -86,7 +87,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.TokenCleanup
         }
 
         [Theory, MemberData(nameof(TestDatabaseProviders))]
-        public async Task RemoveExpiredGrantsAsync_WhenExpiredDeviceGrantsExist_ExpectExpiredDeviceGrantsRemoved(DbContextOptions<PersistedGrantDbContext> options)
+        public async Task RemoveExpiredGrantsAsync_WhenExpiredDeviceGrantsExist_ExpectExpiredDeviceGrantsRemoved(
+            DbContextOptions<PersistedGrantDbContext> options)
         {
             var expiredGrant = new DeviceFlowCodes
             {
@@ -114,7 +116,8 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.TokenCleanup
         }
 
         [Theory, MemberData(nameof(TestDatabaseProviders))]
-        public async Task RemoveExpiredGrantsAsync_WhenValidDeviceGrantsExist_ExpectValidDeviceGrantsInDb(DbContextOptions<PersistedGrantDbContext> options)
+        public async Task RemoveExpiredGrantsAsync_WhenValidDeviceGrantsExist_ExpectValidDeviceGrantsInDb(
+            DbContextOptions<PersistedGrantDbContext> options)
         {
             var validGrant = new DeviceFlowCodes
             {
@@ -154,7 +157,7 @@ namespace IdentityServer4.EntityFramework.IntegrationTests.TokenCleanup
                 new PersistedGrantDbContext(options, StoreOptions));
             services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
             services.AddTransient<IDeviceFlowStore, DeviceFlowStore>();
-            
+
             services.AddTransient<EntityFramework.TokenCleanupService>();
             services.AddSingleton(StoreOptions);
 

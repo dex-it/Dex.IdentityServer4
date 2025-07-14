@@ -38,7 +38,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddControllersWithViews();
-            
+
         // cookie policy to deal with temporary browser incompatibilities
         services.AddSameSiteCookiePolicy();
 
@@ -78,7 +78,7 @@ public class Startup
         //     options.ConfigureDbContext = b => b.UseSqlite(connectionString,
         //         sql => sql.MigrationsAssembly(migrationsAssembly));
         // });
-                
+
 
         services.AddExternalIdentityProviders();
 
@@ -88,9 +88,9 @@ public class Startup
                 options.AllowedCertificateTypes = CertificateTypes.All;
                 options.RevocationMode = X509RevocationMode.NoCheck;
             });
-            
+
         services.AddCertificateForwardingForNginx();
-            
+
         services.AddLocalApiAuthentication(principal =>
         {
             principal.Identities.First().AddClaim(new Claim("additional_claim", "additional_value"));
@@ -103,7 +103,7 @@ public class Startup
     {
         // use this for persisted grants store
         // app.InitializePersistedGrantsStore();
-            
+
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -111,7 +111,7 @@ public class Startup
 
         app.UseCertificateForwarding();
         app.UseCookiePolicy();
-            
+
         app.UseSerilogRequestLogging();
 
         app.UseDeveloperExceptionPage();
@@ -122,10 +122,7 @@ public class Startup
 
         app.UseAuthorization();
 
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapDefaultControllerRoute();
-        });
+        app.UseEndpoints(endpoints => { endpoints.MapDefaultControllerRoute(); });
     }
 }
 
@@ -252,7 +249,7 @@ public static class ServiceExtensions
             {
                 X509Certificate2 clientCertificate = null;
 
-                if(!string.IsNullOrWhiteSpace(headerValue))
+                if (!string.IsNullOrWhiteSpace(headerValue))
                 {
                     var bytes = Encoding.UTF8.GetBytes(Uri.UnescapeDataString(headerValue));
                     clientCertificate = new X509Certificate2(bytes);
