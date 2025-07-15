@@ -75,7 +75,7 @@ partial class Program
 
         Target("sign", [Targets.SignBinary, Targets.Test, Targets.SignPackage, Targets.CopyPackOutput]);
 
-        RunTargetsAndExitAsync(args, ex => ex.Message.EndsWith(EnvVarMissing), () => Prefix).RunSynchronously();
+        RunTargetsAndExitAsync(args, ex => ex.Message.EndsWith(EnvVarMissing), () => Prefix).GetAwaiter().GetResult();
     }
 
     private static void Sign(string path, string searchTerm)
