@@ -33,7 +33,7 @@ jobs:
             wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
             sudo dpkg -i packages-microsoft-prod.deb
             sudo apt-get update
-            sudo apt-get install -y aspnetcore-runtime-3.1
+            sudo apt-get install -y dotnet-runtime-8.0
             chmod +x build.sh  # Make the script executable
             ./build.sh         # Run the script
 
