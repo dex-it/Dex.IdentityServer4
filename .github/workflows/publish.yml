@@ -17,7 +17,7 @@ env:
 
 jobs:
   build_nuget:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -28,7 +28,7 @@ jobs:
       - name: Create Nugets
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 6.x
+          dotnet-version: 8.x
       - run: |
             wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
             sudo dpkg -i packages-microsoft-prod.deb

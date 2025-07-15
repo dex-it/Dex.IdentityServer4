@@ -20,10 +20,13 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="All"/>
         <PackageReference Include="System.Security.Principal.Windows"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate"/>
-        <ProjectReference Include="..\src\IdentityServer4.csproj"/>
-        <ProjectReference Include="..\..\Storage\src\IdentityServer4.Storage.csproj"/>
         <PackageReference Include="SimpleExec"/>
         <PackageReference Include="MinVer"/>
         <PackageReference Include="Bullseye"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\src\IdentityServer4.csproj"/>
+        <ProjectReference Include="..\..\Storage\src\IdentityServer4.Storage.csproj"/>
     </ItemGroup>
 </Project>
