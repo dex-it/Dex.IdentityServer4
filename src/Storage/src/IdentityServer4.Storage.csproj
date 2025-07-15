@@ -36,7 +36,6 @@
 
     <ItemGroup>
         <PackageReference Include="IdentityModel"/>
-        <PackageReference Include="Microsoft.SourceLink.GitHub"/>
         <PackageReference Include="Newtonsoft.Json"/>
     </ItemGroup>
 

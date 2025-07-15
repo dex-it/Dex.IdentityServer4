@@ -44,10 +44,6 @@
         <PackageReference Include="IdentityModel"/>
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect"/>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
-        <PackageReference Include="SimpleExec"/>
-        <PackageReference Include="MinVer"/>
-        <PackageReference Include="Bullseye"/>
     </ItemGroup>
 
     <ItemGroup>

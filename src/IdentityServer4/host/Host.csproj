@@ -20,9 +20,6 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="All"/>
         <PackageReference Include="System.Security.Principal.Windows"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate"/>
-        <PackageReference Include="SimpleExec"/>
-        <PackageReference Include="MinVer"/>
-        <PackageReference Include="Bullseye"/>
     </ItemGroup>
 
     <ItemGroup>

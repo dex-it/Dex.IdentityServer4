@@ -17,12 +17,8 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-
         <PackageReference Include="xunit.v3"/>
         <PackageReference Include="FluentAssertions"/>
-        <PackageReference Include="SimpleExec"/>
-        <PackageReference Include="MinVer"/>
-        <PackageReference Include="Bullseye"/>
     </ItemGroup>
 
     <ItemGroup>
