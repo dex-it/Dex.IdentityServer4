@@ -7,74 +7,71 @@ using IdentityServer4.Models;
 using System.Collections.Generic;
 using static IdentityServer4.IdentityServerConstants;
 
-namespace IdentityServerHost.Configuration
+namespace IdentityServerHost.Configuration;
+
+public class Resources
 {
-    public class Resources
-    {
-        // identity resources represent identity data about a user that can be requested via the scope parameter (OpenID Connect)
-        public static readonly IEnumerable<IdentityResource> IdentityResources =
-            new[]
-            {
-                // some standard scopes from the OIDC spec
-                new IdentityResources.OpenId(),
-                new IdentityResources.Profile(),
-                new IdentityResources.Email(),
+    // identity resources represent identity data about a user that can be requested via the scope parameter (OpenID Connect)
+    public static readonly IEnumerable<IdentityResource> IdentityResources =
+    [
+        // some standard scopes from the OIDC spec
+            new IdentityResources.OpenId(),
+            new IdentityResources.Profile(),
+            new IdentityResources.Email(),
 
-                // custom identity resource with some consolidated claims
-                new IdentityResource("custom.profile", new[] { JwtClaimTypes.Name, JwtClaimTypes.Email, "location", JwtClaimTypes.Address })
-            };
+            // custom identity resource with some consolidated claims
+            new("custom.profile", [JwtClaimTypes.Name, JwtClaimTypes.Email, "location", JwtClaimTypes.Address
+        ])
+    ];
 
-        // API scopes represent values that describe scope of access and can be requested by the scope parameter (OAuth)
-        public static readonly IEnumerable<ApiScope> ApiScopes =
-            new[]
-            {
-                // local API scope
-                new ApiScope(LocalApi.ScopeName),
+    // API scopes represent values that describe scope of access and can be requested by the scope parameter (OAuth)
+    public static readonly IEnumerable<ApiScope> ApiScopes =
+    [
+        // local API scope
+            new(LocalApi.ScopeName),
 
-                // resource specific scopes
-                new ApiScope("resource1.scope1"),
-                new ApiScope("resource2.scope1"), 
+            // resource specific scopes
+            new("resource1.scope1"),
+            new("resource2.scope1"), 
                 
-                // a scope without resource association
-                new ApiScope("scope3"),
+            // a scope without resource association
+            new("scope3"),
                 
-                // a scope shared by multiple resources
-                new ApiScope("shared.scope"),
+            // a scope shared by multiple resources
+            new("shared.scope"),
 
-                // a parameterized scope
-                new ApiScope("transaction", "Transaction")
-                {
-                    Description = "Some Transaction"
-                }
-            };
-
-        // API resources are more formal representation of a resource with processing rules and their scopes (if any)
-        public static readonly IEnumerable<ApiResource> ApiResources = 
-            new[]
+            // a parameterized scope
+            new("transaction", "Transaction")
             {
-                new ApiResource("resource1", "Resource 1")
-                {
-                    ApiSecrets = { new Secret("secret".Sha256()) },
+                Description = "Some Transaction"
+            }
+    ];
 
-                    Scopes = { "resource1.scope1", "shared.scope" }
+    // API resources are more formal representation of a resource with processing rules and their scopes (if any)
+    public static readonly IEnumerable<ApiResource> ApiResources =
+    [
+        new("resource1", "Resource 1")
+            {
+                ApiSecrets = { new Secret("secret".Sha256()) },
+
+                Scopes = { "resource1.scope1", "shared.scope" }
+            },
+                
+            new("resource2", "Resource 2")
+            {
+                ApiSecrets =
+                {
+                    new Secret("secret".Sha256())
                 },
-                
-                new ApiResource("resource2", "Resource 2")
+
+                // additional claims to put into access token
+                UserClaims =
                 {
-                    ApiSecrets =
-                    {
-                        new Secret("secret".Sha256())
-                    },
+                    JwtClaimTypes.Name,
+                    JwtClaimTypes.Email
+                },
 
-                    // additional claims to put into access token
-                    UserClaims =
-                    {
-                        JwtClaimTypes.Name,
-                        JwtClaimTypes.Email
-                    },
-
-                    Scopes = { "resource2.scope1", "shared.scope" }
-                }
-            };
-    }
+                Scopes = { "resource2.scope1", "shared.scope" }
+            }
+    ];
 }

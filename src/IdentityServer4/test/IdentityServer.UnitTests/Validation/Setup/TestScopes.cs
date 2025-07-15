@@ -5,46 +5,45 @@
 using System.Collections.Generic;
 using IdentityServer4.Models;
 
-namespace IdentityServer.UnitTests.Validation.Setup
+namespace IdentityServer.UnitTests.Validation.Setup;
+
+internal class TestScopes
 {
-    internal class TestScopes
+    public static IEnumerable<IdentityResource> GetIdentity()
     {
-        public static IEnumerable<IdentityResource> GetIdentity()
-        {
-            return new IdentityResource[]
-            {
-                new IdentityResources.OpenId(),
-                new IdentityResources.Profile()
-            };
-        }
+        return
+        [
+            new IdentityResources.OpenId(),
+            new IdentityResources.Profile()
+        ];
+    }
 
-        public static IEnumerable<ApiResource> GetApis()
-        {
-            return new ApiResource[]
+    public static IEnumerable<ApiResource> GetApis()
+    {
+        return
+        [
+            new ApiResource
             {
-                new ApiResource
-                {
-                    Name = "api",
-                    Scopes =  { "resource", "resource2" }
-                }
-            };
-        }
+                Name = "api",
+                Scopes =  { "resource", "resource2" }
+            }
+        ];
+    }
 
-        public static IEnumerable<ApiScope> GetScopes()
-        {
-            return new ApiScope[]
+    public static IEnumerable<ApiScope> GetScopes()
+    {
+        return
+        [
+            new ApiScope
             {
-                new ApiScope
-                {
-                    Name = "resource",
-                    Description = "resource scope"
-                },
-                new ApiScope
-                {
-                    Name = "resource2",
-                    Description = "resource scope"
-                }
-            };
-        }
+                Name = "resource",
+                Description = "resource scope"
+            },
+            new ApiScope
+            {
+                Name = "resource2",
+                Description = "resource scope"
+            }
+        ];
     }
 }

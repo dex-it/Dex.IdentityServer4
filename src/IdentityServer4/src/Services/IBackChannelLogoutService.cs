@@ -5,19 +5,16 @@
 using IdentityServer4.Models;
 using System.Threading.Tasks;
 
-namespace IdentityServer4.Services
+namespace IdentityServer4.Services;
+
+/// <summary>
+/// The service responsible for performing back-channel logout notification.
+/// </summary>
+public interface IBackChannelLogoutService
 {
     /// <summary>
-    /// The service responsible for performing back-channel logout notification.
+    /// Performs http back-channel logout notification.
     /// </summary>
-    public interface IBackChannelLogoutService
-    {
-        /// <summary>
-        /// Performs http back-channel logout notification.
-        /// </summary>
-        /// <param name="context">The context of the back channel logout notification.</param>
-        Task SendLogoutNotificationsAsync(LogoutNotificationContext context);
-    }
-
-    
+    /// <param name="context">The context of the back channel logout notification.</param>
+    Task SendLogoutNotificationsAsync(LogoutNotificationContext context);
 }

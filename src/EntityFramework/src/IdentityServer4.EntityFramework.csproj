@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>Dex.IdentityServer4.EntityFramework</PackageId>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
 
     <Description>EntityFramework persistence layer for IdentityServer4</Description>
     <Authors>Brock Allen;Dominick Baier;Scott Brady</Authors>

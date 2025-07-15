@@ -1,18 +1,17 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using System;
 
-namespace IdentityServer.UnitTests.Common
-{
-    class MockSystemClock : ISystemClock
-    {
-        public DateTimeOffset Now { get; set; }
+namespace IdentityServer.UnitTests.Common;
 
-        public DateTimeOffset UtcNow
+internal class MockSystemClock : ISystemClock
+{
+    public DateTimeOffset Now { get; set; }
+
+    public DateTimeOffset UtcNow
+    {
+        get
         {
-            get
-            {
-                return Now;
-            }
+            return Now;
         }
     }
 }
