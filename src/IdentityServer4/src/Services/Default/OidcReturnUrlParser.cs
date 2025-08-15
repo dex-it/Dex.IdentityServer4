@@ -3,14 +3,12 @@
 
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Extensions;
 using IdentityServer4.Validation;
 using Microsoft.Extensions.Logging;
 using IdentityServer4.Stores;
-using System.Collections.Specialized;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 
