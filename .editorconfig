@@ -6,6 +6,8 @@ root=true
 
 #### Core EditorConfig Options ####
 
+resharper_replace_auto_property_with_computed_property_highlighting = none
+
 # Indentation and spacing
 indent_size=4
 indent_style=space

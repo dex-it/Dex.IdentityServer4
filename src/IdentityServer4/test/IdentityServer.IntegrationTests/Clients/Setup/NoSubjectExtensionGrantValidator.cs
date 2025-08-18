@@ -27,5 +27,5 @@ public class NoSubjectExtensionGrantValidator : IExtensionGrantValidator
         return Task.CompletedTask;
     }
 
-    public string GrantType => "custom.nosubject";
+    public string GrantType { get; } = "custom.nosubject";
 }
