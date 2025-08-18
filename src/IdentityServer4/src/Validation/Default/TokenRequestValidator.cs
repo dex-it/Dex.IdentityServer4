@@ -589,7 +589,7 @@ internal class TokenRequestValidator : ITokenRequestValidator
         /////////////////////////////////////////////
         // check if a validator is registered for the grant type
         /////////////////////////////////////////////
-        if (!_extensionGrantValidator.GetAvailableGrantTypes().Contains(_validatedRequest.GrantType, StringComparer.Ordinal))
+        if (!_extensionGrantValidator.GetAvailableGrantTypes().Contains(_validatedRequest.GrantType))
         {
             LogError("No validator is registered for the grant type", new { grantType = _validatedRequest.GrantType });
             return Invalid(OidcConstants.TokenErrors.UnsupportedGrantType);
