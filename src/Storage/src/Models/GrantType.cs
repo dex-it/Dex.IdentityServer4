@@ -12,7 +12,6 @@ namespace IdentityServer4.Models
         public const string AuthorizationCode = "authorization_code";
         public const string ClientCredentials = "client_credentials";
         public const string ResourceOwnerPassword = "password";
-        public const string ExternalUserCredentials = "external_user_credentials";
         public const string DeviceFlow = "urn:ietf:params:oauth:grant-type:device_code";
     }
 }

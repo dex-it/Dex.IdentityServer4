@@ -24,8 +24,6 @@ public static class GrantTypes
 
     public static string[] ResourceOwnerPassword => [GrantType.ResourceOwnerPassword];
 
-    public static string[] ExternalUserCredentials => [GrantType.ExternalUserCredentials];
-
     public static string[] ResourceOwnerPasswordAndClientCredentials => [GrantType.ResourceOwnerPassword, GrantType.ClientCredentials];
 
     public static string[] DeviceFlow => [GrantType.DeviceFlow];
