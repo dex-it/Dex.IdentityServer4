@@ -16,25 +16,17 @@ public class ExtensionGrantValidator : IExtensionGrantValidator
         var credential = context.Request.Raw.Get("custom_credential");
         var extraClaim = context.Request.Raw.Get("extra_claim");
 
-        if (credential != null)
-        {
-            if (extraClaim != null)
-            {
-                context.Result = new GrantValidationResult(
-                    "818727",
-                    claims: [new Claim("extra_claim", extraClaim)],
-                    authenticationMethod: GrantType);
-            }
-            else
-            {
-                context.Result = new GrantValidationResult("818727", GrantType);
-            }
-        }
-        else
+        if (credential is null)
         {
             // custom error message
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "invalid_custom_credential");
+            return Task.CompletedTask;
         }
+
+        context.Result = context.Result = new GrantValidationResult(
+            "818727",
+            claims: extraClaim is not null ? [new Claim("extra_claim", extraClaim)] : null,
+            authenticationMethod: GrantType);
 
         return Task.CompletedTask;
     }

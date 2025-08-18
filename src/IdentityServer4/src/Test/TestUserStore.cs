@@ -115,7 +115,7 @@ public class TestUserStore
         }
 
         // if no display name was provided, try to construct by first and/or last name
-        if (!filtered.Any(x => x.Type == JwtClaimTypes.Name))
+        if (filtered.All(x => x.Type != JwtClaimTypes.Name))
         {
             var first = filtered.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value;
             var last = filtered.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value;
@@ -146,7 +146,7 @@ public class TestUserStore
             Username = name,
             ProviderName = provider,
             ProviderSubjectId = userId,
-            Claims = filtered
+            Claims = filtered.ToHashSet()
         };
 
         // add user to in-memory store

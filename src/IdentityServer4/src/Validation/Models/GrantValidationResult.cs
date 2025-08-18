@@ -28,13 +28,13 @@ public class GrantValidationResult : ValidationResult
     /// <summary>
     /// Custom fields for the token response
     /// </summary>
-    public Dictionary<string, object> CustomResponse { get; set; } = new();
+    public Dictionary<string, object>? CustomResponse { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GrantValidationResult"/> class with no subject.
     /// Warning: the resulting access token will only contain the client identity.
     /// </summary>
-    public GrantValidationResult(Dictionary<string, object> customResponse = null)
+    public GrantValidationResult(Dictionary<string, object>? customResponse = null)
     {
         IsError = false;
         CustomResponse = customResponse;
@@ -44,15 +44,19 @@ public class GrantValidationResult : ValidationResult
     /// Initializes a new instance of the <see cref="GrantValidationResult"/> class with a given principal.
     /// Warning: the principal needs to include the required claims - it is recommended to use the other constructor that does validation.
     /// </summary>
-    public GrantValidationResult(ClaimsPrincipal principal, Dictionary<string, object> customResponse = null)
+    public GrantValidationResult(ClaimsPrincipal principal, Dictionary<string, object>? customResponse = null)
     {
         IsError = false;
 
         if (principal.Identities.Count() != 1) throw new InvalidOperationException("only a single identity supported");
-        if (principal.FindFirst(JwtClaimTypes.Subject) == null) throw new InvalidOperationException("sub claim is missing");
-        if (principal.FindFirst(JwtClaimTypes.IdentityProvider) == null) throw new InvalidOperationException("idp claim is missing");
-        if (principal.FindFirst(JwtClaimTypes.AuthenticationMethod) == null) throw new InvalidOperationException("amr claim is missing");
-        if (principal.FindFirst(JwtClaimTypes.AuthenticationTime) == null) throw new InvalidOperationException("auth_time claim is missing");
+        if (principal.FindFirst(JwtClaimTypes.Subject) == null)
+            throw new InvalidOperationException("sub claim is missing");
+        if (principal.FindFirst(JwtClaimTypes.IdentityProvider) == null)
+            throw new InvalidOperationException("idp claim is missing");
+        if (principal.FindFirst(JwtClaimTypes.AuthenticationMethod) == null)
+            throw new InvalidOperationException("amr claim is missing");
+        if (principal.FindFirst(JwtClaimTypes.AuthenticationTime) == null)
+            throw new InvalidOperationException("auth_time claim is missing");
 
         Subject = principal;
         CustomResponse = customResponse;
@@ -64,7 +68,8 @@ public class GrantValidationResult : ValidationResult
     /// <param name="error">The error.</param>
     /// <param name="errorDescription">The error description.</param>
     /// <param name="customResponse">Custom response elements</param>
-    public GrantValidationResult(TokenRequestErrors error, string errorDescription = null, Dictionary<string, object> customResponse = null)
+    public GrantValidationResult(TokenRequestErrors error, string? errorDescription = null,
+        Dictionary<string, object>? customResponse = null)
     {
         Error = ConvertTokenErrorEnumToString(error);
         ErrorDescription = errorDescription;
@@ -83,9 +88,9 @@ public class GrantValidationResult : ValidationResult
     public GrantValidationResult(
         string subject,
         string authenticationMethod,
-        IEnumerable<Claim> claims = null,
+        Claim[]? claims = null,
         string identityProvider = IdentityServerConstants.LocalIdentityProvider,
-        Dictionary<string, object> customResponse = null)
+        Dictionary<string, object>? customResponse = null)
         : this(subject, authenticationMethod, DateTime.UtcNow, claims, identityProvider, customResponse)
     {
     }
@@ -104,9 +109,9 @@ public class GrantValidationResult : ValidationResult
         string subject,
         string authenticationMethod,
         DateTime authTime,
-        IEnumerable<Claim> claims = null,
+        Claim[]? claims = null,
         string identityProvider = IdentityServerConstants.LocalIdentityProvider,
-        Dictionary<string, object> customResponse = null)
+        Dictionary<string, object>? customResponse = null)
     {
         IsError = false;
 
@@ -130,18 +135,15 @@ public class GrantValidationResult : ValidationResult
         CustomResponse = customResponse;
     }
 
-    private string ConvertTokenErrorEnumToString(TokenRequestErrors error)
+    private static string ConvertTokenErrorEnumToString(TokenRequestErrors error) => error switch
     {
-        return error switch
-        {
-            TokenRequestErrors.InvalidClient => OidcConstants.TokenErrors.InvalidClient,
-            TokenRequestErrors.InvalidGrant => OidcConstants.TokenErrors.InvalidGrant,
-            TokenRequestErrors.InvalidRequest => OidcConstants.TokenErrors.InvalidRequest,
-            TokenRequestErrors.InvalidScope => OidcConstants.TokenErrors.InvalidScope,
-            TokenRequestErrors.UnauthorizedClient => OidcConstants.TokenErrors.UnauthorizedClient,
-            TokenRequestErrors.UnsupportedGrantType => OidcConstants.TokenErrors.UnsupportedGrantType,
-            TokenRequestErrors.InvalidTarget => OidcConstants.TokenErrors.InvalidTarget,
-            _ => throw new InvalidOperationException("invalid token error")
-        };
-    }
+        TokenRequestErrors.InvalidClient => OidcConstants.TokenErrors.InvalidClient,
+        TokenRequestErrors.InvalidGrant => OidcConstants.TokenErrors.InvalidGrant,
+        TokenRequestErrors.InvalidRequest => OidcConstants.TokenErrors.InvalidRequest,
+        TokenRequestErrors.InvalidScope => OidcConstants.TokenErrors.InvalidScope,
+        TokenRequestErrors.UnauthorizedClient => OidcConstants.TokenErrors.UnauthorizedClient,
+        TokenRequestErrors.UnsupportedGrantType => OidcConstants.TokenErrors.UnsupportedGrantType,
+        TokenRequestErrors.InvalidTarget => OidcConstants.TokenErrors.InvalidTarget,
+        _ => throw new InvalidOperationException("invalid token error")
+    };
 }

@@ -6,6 +6,7 @@ using IdentityModel;
 using IdentityServer4.Validation;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 
 namespace IdentityServer4.Test;
@@ -43,7 +44,7 @@ public class TestUserResourceOwnerPasswordValidator : IResourceOwnerPasswordVali
             context.Result = new GrantValidationResult(
                 user.SubjectId ?? throw new ArgumentException("Subject ID not set", nameof(user.SubjectId)), 
                 OidcConstants.AuthenticationMethods.Password, _clock.UtcNow.UtcDateTime, 
-                user.Claims);
+                user.Claims.ToArray());
         }
 
         return Task.CompletedTask;
