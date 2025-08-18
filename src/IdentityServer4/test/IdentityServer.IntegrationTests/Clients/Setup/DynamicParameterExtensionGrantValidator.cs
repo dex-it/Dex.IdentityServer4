@@ -58,5 +58,5 @@ public class DynamicParameterExtensionGrantValidator : IExtensionGrantValidator
         return Task.CompletedTask;
     }
 
-    public string GrantType => "dynamic";
+    public string GrantType { get; } = "dynamic";
 }

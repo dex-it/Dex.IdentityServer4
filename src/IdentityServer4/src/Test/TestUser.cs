@@ -46,5 +46,5 @@ public class TestUser
     /// <summary>
     /// Gets or sets the claims.
     /// </summary>
-    public ICollection<Claim> Claims { get; set; } = new HashSet<Claim>(new ClaimComparer());
+    public HashSet<Claim> Claims { get; set; } = new(new ClaimComparer());
 }

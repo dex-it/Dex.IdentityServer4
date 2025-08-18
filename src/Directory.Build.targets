@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <FrameworkVersion>8.0.18</FrameworkVersion>
+        <FrameworkVersion>8.0.19</FrameworkVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -46,12 +46,12 @@
         <PackageReference Update="Serilog.Sinks.File" Version="7.0.0"/>
 
         <!--unsorted -->
-        <PackageReference Update="FluentAssertions" Version="8.5.0"/>
+        <PackageReference Update="FluentAssertions" Version="8.6.0"/>
         <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(FrameworkVersion)"/>
         <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
         <PackageReference Update="xunit.v3" Version="3.0.0"/>
-        <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="8.12.1"/>
-        <PackageReference Update="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.12.1"/>
+        <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="8.13.1"/>
+        <PackageReference Update="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.13.1"/>
         <PackageReference Update="Newtonsoft.Json" Version="13.0.3"/>
 
     </ItemGroup>

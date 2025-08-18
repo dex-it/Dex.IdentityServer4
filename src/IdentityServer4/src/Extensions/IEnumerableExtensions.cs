@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 #pragma warning disable 1591
@@ -14,19 +15,10 @@ namespace IdentityServer4.Extensions;
 public static class IEnumerableExtensions
 {
     [DebuggerStepThrough]
-    public static bool IsNullOrEmpty<T>(this IEnumerable<T> list)
+    public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this IEnumerable<T>? list)
     {
-        if (list == null)
-        {
-            return true;
-        }
-
-        if (!list.Any())
-        {
-            return true;
-        }
-
-        return false;
+        if (list is null) return true;
+        return !list.Any();
     }
 
     public static bool HasDuplicates<T, TProp>(this IEnumerable<T> list, Func<T, TProp> selector)
@@ -39,6 +31,7 @@ public static class IEnumerableExtensions
                 return true;
             }
         }
+
         return false;
     }
 }

@@ -27,5 +27,5 @@ public class ExtensionGrantValidator2 : IExtensionGrantValidator
         return Task.CompletedTask;
     }
 
-    public string GrantType => "custom2";
+    public string GrantType { get; } = "custom2";
 }
