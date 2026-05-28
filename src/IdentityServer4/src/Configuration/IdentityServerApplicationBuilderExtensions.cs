@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using IdentityServer4.Hosting.ExceptionHandling;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -29,6 +30,7 @@ public static class IdentityServerApplicationBuilderExtensions
     public static IApplicationBuilder UseIdentityServer(this IApplicationBuilder app, IdentityServerMiddlewareOptions options = null)
     {
         app.Validate();
+        app.UseIdentityExceptionHandling();
 
         app.UseMiddleware<BaseUrlMiddleware>();
 

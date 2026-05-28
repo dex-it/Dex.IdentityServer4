@@ -5,6 +5,7 @@
 using IdentityServer4.Configuration;
 using Microsoft.Extensions.Configuration;
 using System;
+using IdentityServer4.Hosting.ExceptionHandling;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -44,7 +45,8 @@ public static class IdentityServerServiceCollectionExtensions
             .AddValidators()
             .AddResponseGenerators()
             .AddDefaultSecretParsers()
-            .AddDefaultSecretValidators();
+            .AddDefaultSecretValidators()
+            .AddIdentityExceptionHandling();
 
         // provide default in-memory implementation, not suitable for most production scenarios
         builder.AddInMemoryPersistedGrants();
