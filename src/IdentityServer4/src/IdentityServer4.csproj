@@ -41,6 +41,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Dex.RfcExceptionsHandler" Version="8.0.1" />
         <PackageReference Include="IdentityModel"/>
         <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect"/>
