@@ -5,6 +5,7 @@
 using IdentityServer4.Configuration;
 using Microsoft.Extensions.Configuration;
 using System;
+using Dex.RfcExceptionsHandler.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -33,6 +34,8 @@ public static class IdentityServerServiceCollectionExtensions
     /// <returns></returns>
     public static IIdentityServerBuilder AddIdentityServer(this IServiceCollection services)
     {
+        services.AddDefaultRfcExceptionHandleMiddleware();
+
         var builder = services.AddIdentityServerBuilder();
 
         builder
@@ -83,10 +86,9 @@ public static class IdentityServerServiceCollectionExtensions
     /// <param name="schemes">The schemes to configure. If none provided, then all OpenIdConnect schemes will use the cache.</param>
     public static IServiceCollection AddOidcStateDataFormatterCache(this IServiceCollection services, params string[] schemes)
     {
-        services.AddSingleton<IPostConfigureOptions<OpenIdConnectOptions>>(
-            svcs => new ConfigureOpenIdConnectOptions(
-                schemes,
-                svcs.GetRequiredService<IHttpContextAccessor>())
+        services.AddSingleton<IPostConfigureOptions<OpenIdConnectOptions>>(svcs => new ConfigureOpenIdConnectOptions(
+            schemes,
+            svcs.GetRequiredService<IHttpContextAccessor>())
         );
 
         return services;

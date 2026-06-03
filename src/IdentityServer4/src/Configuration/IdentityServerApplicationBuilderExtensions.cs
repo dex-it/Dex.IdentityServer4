@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using Dex.RfcExceptionsHandler.Extensions;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -29,6 +30,7 @@ public static class IdentityServerApplicationBuilderExtensions
     public static IApplicationBuilder UseIdentityServer(this IApplicationBuilder app, IdentityServerMiddlewareOptions options = null)
     {
         app.Validate();
+        app.UseRfcExceptionHandleMiddleware();
 
         app.UseMiddleware<BaseUrlMiddleware>();
 
@@ -54,21 +56,26 @@ public static class IdentityServerApplicationBuilderExtensions
         if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
 
         var logger = loggerFactory.CreateLogger("IdentityServer4.Startup");
-        logger.LogInformation("Starting IdentityServer4 version {version}", typeof(IdentityServerMiddleware).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
+        logger.LogInformation("Starting IdentityServer4 version {version}",
+            typeof(IdentityServerMiddleware).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
 
         var scopeFactory = app.ApplicationServices.GetService<IServiceScopeFactory>();
 
         using var scope = scopeFactory.CreateScope();
         var serviceProvider = scope.ServiceProvider;
 
-        TestService(serviceProvider, typeof(IPersistedGrantStore), logger, "No storage mechanism for grants specified. Use the 'AddInMemoryPersistedGrants' extension method to register a development version.");
-        TestService(serviceProvider, typeof(IClientStore), logger, "No storage mechanism for clients specified. Use the 'AddInMemoryClients' extension method to register a development version.");
-        TestService(serviceProvider, typeof(IResourceStore), logger, "No storage mechanism for resources specified. Use the 'AddInMemoryIdentityResources' or 'AddInMemoryApiResources' extension method to register a development version.");
+        TestService(serviceProvider, typeof(IPersistedGrantStore), logger,
+            "No storage mechanism for grants specified. Use the 'AddInMemoryPersistedGrants' extension method to register a development version.");
+        TestService(serviceProvider, typeof(IClientStore), logger,
+            "No storage mechanism for clients specified. Use the 'AddInMemoryClients' extension method to register a development version.");
+        TestService(serviceProvider, typeof(IResourceStore), logger,
+            "No storage mechanism for resources specified. Use the 'AddInMemoryIdentityResources' or 'AddInMemoryApiResources' extension method to register a development version.");
 
         var persistedGrants = serviceProvider.GetService(typeof(IPersistedGrantStore));
         if (persistedGrants.GetType().FullName == typeof(InMemoryPersistedGrantStore).FullName)
         {
-            logger.LogInformation("You are using the in-memory version of the persisted grant store. This will store consent decisions, authorization codes, refresh and reference tokens in memory only. If you are using any of those features in production, you want to switch to a different store implementation.");
+            logger.LogInformation(
+                "You are using the in-memory version of the persisted grant store. This will store consent decisions, authorization codes, refresh and reference tokens in memory only. If you are using any of those features in production, you want to switch to a different store implementation.");
         }
 
         var options = serviceProvider.GetRequiredService<IdentityServerOptions>();
@@ -85,7 +92,8 @@ public static class IdentityServerApplicationBuilderExtensions
 
         if (await schemes.GetDefaultAuthenticateSchemeAsync() == null && options.Authentication.CookieAuthenticationScheme == null)
         {
-            logger.LogWarning("No authentication scheme has been set. Setting either a default authentication scheme or a CookieAuthenticationScheme on IdentityServerOptions is required.");
+            logger.LogWarning(
+                "No authentication scheme has been set. Setting either a default authentication scheme or a CookieAuthenticationScheme on IdentityServerOptions is required.");
         }
         else
         {
@@ -94,7 +102,8 @@ public static class IdentityServerApplicationBuilderExtensions
             if (options.Authentication.CookieAuthenticationScheme != null)
             {
                 authenticationScheme = await schemes.GetSchemeAsync(options.Authentication.CookieAuthenticationScheme);
-                logger.LogInformation("Using explicitly configured authentication scheme {scheme} for IdentityServer", options.Authentication.CookieAuthenticationScheme);
+                logger.LogInformation("Using explicitly configured authentication scheme {scheme} for IdentityServer",
+                    options.Authentication.CookieAuthenticationScheme);
             }
             else
             {
@@ -104,7 +113,9 @@ public static class IdentityServerApplicationBuilderExtensions
 
             if (!typeof(IAuthenticationSignInHandler).IsAssignableFrom(authenticationScheme.HandlerType))
             {
-                logger.LogInformation("Authentication scheme {scheme} is configured for IdentityServer, but it is not a scheme that supports signin (like cookies). If you support interactive logins via the browser, then a cookie-based scheme should be used.", authenticationScheme.Name);
+                logger.LogInformation(
+                    "Authentication scheme {scheme} is configured for IdentityServer, but it is not a scheme that supports signin (like cookies). If you support interactive logins via the browser, then a cookie-based scheme should be used.",
+                    authenticationScheme.Name);
             }
 
             logger.LogDebug("Using {scheme} as default ASP.NET Core scheme for authentication", (await schemes.GetDefaultAuthenticateSchemeAsync())?.Name);
@@ -118,7 +129,7 @@ public static class IdentityServerApplicationBuilderExtensions
     private static void ValidateOptions(IdentityServerOptions options, ILogger logger)
     {
         if (options.IssuerUri.IsPresent()) logger.LogDebug("Custom IssuerUri set to {0}", options.IssuerUri);
-            
+
         // todo: perhaps different logging messages?
         //if (options.UserInteraction.LoginUrl.IsMissing()) throw new InvalidOperationException("LoginUrl is not configured");
         //if (options.UserInteraction.LoginReturnUrlParameter.IsMissing()) throw new InvalidOperationException("LoginReturnUrlParameter is not configured");
@@ -128,7 +139,8 @@ public static class IdentityServerApplicationBuilderExtensions
         if (options.UserInteraction.ErrorIdParameter.IsMissing()) throw new InvalidOperationException("ErrorIdParameter is not configured");
         if (options.UserInteraction.ConsentUrl.IsMissing()) throw new InvalidOperationException("ConsentUrl is not configured");
         if (options.UserInteraction.ConsentReturnUrlParameter.IsMissing()) throw new InvalidOperationException("ConsentReturnUrlParameter is not configured");
-        if (options.UserInteraction.CustomRedirectReturnUrlParameter.IsMissing()) throw new InvalidOperationException("CustomRedirectReturnUrlParameter is not configured");
+        if (options.UserInteraction.CustomRedirectReturnUrlParameter.IsMissing())
+            throw new InvalidOperationException("CustomRedirectReturnUrlParameter is not configured");
 
         if (options.Authentication.CheckSessionCookieName.IsMissing()) throw new InvalidOperationException("CheckSessionCookieName is not configured");
 

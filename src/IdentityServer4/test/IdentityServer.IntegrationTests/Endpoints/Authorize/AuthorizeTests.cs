@@ -1058,8 +1058,8 @@ public class AuthorizeTests
             "123_state",
             "123_nonce");
 
-        Func<Task> a = () => _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
-        await a.Should().ThrowAsync<Exception>();
+        var response = await _mockPipeline.BrowserClient.GetAsync(url, TestContext.Current.CancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
     }
 
     [Fact]

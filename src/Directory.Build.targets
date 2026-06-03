@@ -2,15 +2,15 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <FrameworkVersion>8.0.19</FrameworkVersion>
+        <FrameworkVersion>8.0.27</FrameworkVersion>
     </PropertyGroup>
 
     <ItemGroup>
         <!--build related-->
-        <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="All"/>
-        <PackageReference Update="SimpleExec" Version="12.0.0"/>
-        <PackageReference Update="Bullseye" Version="6.0.0"/>
-        <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+        <PackageReference Include="MinVer" Version="7.0.0" PrivateAssets="All"/>
+        <PackageReference Update="SimpleExec" Version="13.0.0"/>
+        <PackageReference Update="Bullseye" Version="6.1.0"/>
+        <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="All"/>
 
         <!--our stuff -->
         <PackageReference Update="IdentityModel" Version="6.1.0"/>
@@ -40,19 +40,19 @@
         <PackageReference Update="Microsoft.EntityFrameworkCore.SqlServer" Version="$(FrameworkVersion)"/>
         <PackageReference Update="Microsoft.EntityFrameworkCore.Design" Version="$(FrameworkVersion)" PrivateAssets="All"/>
 
-        <PackageReference Update="Serilog" Version="4.3.0"/>
+        <PackageReference Update="Serilog" Version="4.3.1"/>
         <PackageReference Update="Serilog.AspNetCore" Version="8.0.3"/>
-        <PackageReference Update="Serilog.Sinks.Console" Version="6.0.0"/>
+        <PackageReference Update="Serilog.Sinks.Console" Version="6.1.1"/>
         <PackageReference Update="Serilog.Sinks.File" Version="7.0.0"/>
 
         <!--unsorted -->
-        <PackageReference Update="FluentAssertions" Version="8.6.0"/>
+        <PackageReference Update="FluentAssertions" Version="8.10.0"/>
         <PackageReference Update="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(FrameworkVersion)"/>
-        <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
-        <PackageReference Update="xunit.v3" Version="3.0.0"/>
-        <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="8.13.1"/>
-        <PackageReference Update="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.13.1"/>
-        <PackageReference Update="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Update="Microsoft.NET.Test.Sdk" Version="18.6.0"/>
+        <PackageReference Update="xunit.v3" Version="3.2.2"/>
+        <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="8.18.0"/>
+        <PackageReference Update="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.18.0"/>
+        <PackageReference Update="Newtonsoft.Json" Version="13.0.4"/>
 
     </ItemGroup>
 
